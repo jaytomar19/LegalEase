@@ -8,14 +8,25 @@ export function TopBar() {
 
   return (
     <div className="main-topbar">
-      <div className="main-topbar-search">
-        <span className="search-icon">🔍</span>
-        <input
-          className="main-topbar-search-input"
-          placeholder="Search tickets, projects, documents, people..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+      <div className="main-topbar-left">
+        {state.history.length > 0 && (
+          <button
+            className="topbar-back-btn"
+            title="Go back to previous page"
+            onClick={() => dispatch({ type: "GO_BACK" })}
+          >
+            ← Back
+          </button>
+        )}
+        <div className="main-topbar-search">
+          <span className="search-icon">🔍</span>
+          <input
+            className="main-topbar-search-input"
+            placeholder="Search tickets, projects, documents, people..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
       </div>
 
       <div className="main-topbar-right">
