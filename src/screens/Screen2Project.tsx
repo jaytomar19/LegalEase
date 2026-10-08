@@ -1,317 +1,389 @@
-
-import { useState } from "react";
-import { useStore, getProjectCounts } from "../state/store";
-import { FilterBar, type FilterValues } from "../components/FilterBar";
-import { IssueTable } from "../components/IssueTable";
-import { EmptyState } from "../components/EmptyState";
-import type { Flag, ScreenState } from "../types";
-
-const DEFAULT_PROJECT_FILTERS: FilterValues = { show: "all", groupBy: null, keyword: "" };
-
-const WHERE_TO_START: Record<string, string> = {
-  A: "Start with the current change document, then compare the vendor, training, and retention facts against the approval artefacts before deciding whether the change needs legal follow-up.",
-  B: "Start with the onboarding copy document and check whether the wording change affects anything beyond copy review.",
-  C: "Start with the EU rollout plan and compare the new launch region against the regions covered by the approval memo.",
-  D: "Start with the summary quality plan and check whether using customer boards for training conflicts with the training-off approval.",
-  E: "Start with the image feature launch plan and check whether switching the default on affects the approved default-setting conditions.",
-};
-
-const DOC_BULLETS: Record<string, string[]> = {
-  A: [
-    "Chatbot is moving to a cheaper AI model",
-    "The provider is changing",
-    "Customer chat messages will be sent to the new provider",
-    "The screens are not changing",
-  ],
-  B: ["The welcome message wording is being updated", "No change to how the product works or what data is used"],
-  C: ["The AI feature is launching in a new region next month", "No change to how the feature works"],
-  D: ["Customer boards will be used to improve how well the AI summaries work", "No change to the screens"],
-  E: ["The AI image feature is switching on by default for every plan from next month"],
-};
-
-const COMPARISON_A = [
-  { fact: "Vendor", approved: "Provider A", inDoc: "Provider B (new)", status: "Changed" as const },
-  { fact: "Training on data", approved: "off", inDoc: "not stated", status: "Missing" as const },
-  { fact: "Data kept", approved: "briefly", inDoc: "not stated", status: "Missing" as const },
-  { fact: "Customer notice", approved: "required before launch", inDoc: "not stated", status: "Missing" as const },
-];
-
-function docStatusBadge(label: string) {
-  if (label.startsWith("Live · urgent")) return <span className="badge badge-urgent"><span className="badge-dot" />Needs review</span>;
-  if (label.startsWith("Live")) return <span className="badge badge-later"><span className="badge-dot" />Needs review</span>;
-  if (label === "Resolved") return <span className="badge badge-resolved"><span className="badge-dot" />Resolved</span>;
-  return <span className="badge badge-logged"><span className="badge-dot" />Logged</span>;
-}
-
-function parseArtefact(name: string): { title: string; date?: string } {
-  const [head, ...rest] = name.split(",").map((s) => s.trim());
-  const suffix = rest.join(", ");
-  const looksLikeDate = /^\d{1,2}\s+[A-Za-z]{3,}$/.test(suffix);
-  return looksLikeDate ? { title: head, date: suffix } : { title: name };
-}
-
-function statusTagClass(status: string) {
-  if (status === "Changed") return "tag-changed";
-  if (status === "Missing" || status === "Not stated") return "tag-not-stated";
-  return "tag-unchanged";
-}
+import { useStore } from "../state/store";
+import type { ScreenState } from "../types";
 
 export function Screen2Project({ screen }: { screen: Pick<ScreenState, "projectId" | "projectTab"> }) {
   const { state, dispatch } = useStore();
-  const projectId = screen.projectId!;
-  const project = state.projects.find((p) => p.id === projectId)!;
-  const tab = screen.projectTab ?? "ai-brief";
-  const { live, resolved } = getProjectCounts(state, projectId);
+  const projectId = screen.projectId ?? "C";
+  const project = state.projects.find((p) => p.id === projectId) ?? state.projects[0];
 
-  const projectDocs = state.documents
-    .filter((d) => d.projectId === projectId)
-    .sort((a, b) => (a.createdAt === "today" ? -1 : b.createdAt === "today" ? 1 : 0));
+  // Tab state: default to legal-review
+  const tab = screen.projectTab ?? "legal-review";
 
-  const defaultDocId = projectDocs.find((d) => d.statusLabel.startsWith("Live"))?.id ?? projectDocs[0]?.id;
-  const [selectedDocId, setSelectedDocId] = useState(defaultDocId);
-  const selectedDoc = projectDocs.find((d) => d.id === selectedDocId) ?? projectDocs[0];
-
-  function setTab(t: "ai-brief" | "issues" | "artefacts") {
+  function setTab(t: "legal-review" | "changes" | "documents" | "timeline") {
     dispatch({ type: "NAVIGATE", screen: { ...state.screen, projectTab: t } });
   }
 
-  const vendorFlag = state.flags.find((f) => f.id === "flag-vendor-new");
-  const vendorFlagAwaiting = vendorFlag?.status === "awaiting-review";
+  // Map names for precise alignment with user reference screenshots
+  let projectName = project.name;
+  if (projectId === "C" || project.name === "AI Prototyping") projectName = "Lumen Compose";
+  else if (projectId === "A" || project.name === "AI Assistant") projectName = "Lumen Assist";
+  else if (projectId === "S" || project.name === "Website Publishing") projectName = "Lumen Sites";
+  else if (projectId === "B" || project.name === "Brand Assets") projectName = "Lumen Brand";
+  else if (projectId === "W" || project.name === "Image and Video") projectName = "Lumen Weave";
 
-  const projectArtefacts = state.artefacts.filter((a) => a.projectId === projectId);
-
-  // Project Issues filters are local and scoped to this project instance — they never
-  // read from or write to Home's global filters, and reset fresh whenever a different
-  // project is opened (Screen2Project is remounted via a projectId-based key in App.tsx).
-  const [projectFilters, setProjectFilters] = useState<FilterValues>(DEFAULT_PROJECT_FILTERS);
-
-  const keyword = projectFilters.keyword.trim().toLowerCase();
-  function matchesKeyword(f: Flag) {
-    if (!keyword) return true;
-    const haystack = [f.title, f.projectId, f.team, f.documentTitle, f.feature, f.category].join(" ").toLowerCase();
-    return haystack.includes(keyword);
-  }
-  function matchesShow(f: Flag) {
-    if (projectFilters.show === "all") return true;
-    if (projectFilters.show === "legal") return f.status !== "logged";
-    return f.status === "logged";
-  }
-  const projectFlags = state.flags.filter((f) => f.projectId === projectId && matchesKeyword(f) && matchesShow(f));
-  const liveFlags = projectFlags
-    .filter((f) => f.status === "awaiting-review" || f.status === "comprehensive-review")
-    .sort((a, b) => (a.urgency === b.urgency ? 0 : a.urgency === "urgent" ? -1 : 1));
-  const resolvedFlags = projectFlags.filter((f) => f.status === "resolved");
-  const loggedFlags = projectFlags.filter((f) => f.status === "logged");
-
-  const groupBy = projectFilters.groupBy;
-  const isGrouped = groupBy === "department" || groupBy === "feature" || groupBy === "document";
-
-  function groupKey(f: Flag) {
-    if (groupBy === "department") return f.team;
-    if (groupBy === "feature") return f.feature;
-    if (groupBy === "document") return f.documentTitle;
-    return "";
-  }
-
-  function groupedIssuesView() {
-    const all = [...liveFlags, ...resolvedFlags, ...loggedFlags];
-    const groups = new Map<string, Flag[]>();
-    for (const f of all) {
-      const key = groupKey(f);
-      if (!groups.has(key)) groups.set(key, []);
-      groups.get(key)!.push(f);
-    }
-    if (groups.size === 0) return <EmptyState>No flags match</EmptyState>;
-    return (
-      <div>
-        {[...groups.entries()].map(([key, items]) => (
-          <div key={key} className="section-block">
-            <div className="section-label">
-              {key} ({items.length})
-            </div>
-            <IssueTable
-              liveFlags={items.filter((f) => f.status === "awaiting-review" || f.status === "comprehensive-review")}
-              resolvedFlags={items.filter((f) => f.status === "resolved")}
-              loggedFlags={items.filter((f) => f.status === "logged")}
-              returnTo={{ name: "project", projectId, projectTab: "issues" }}
-            />
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  const comparison = projectId === "A" ? COMPARISON_A : null;
+  const projectInitial = (projectName === "Lumen Compose" || projectId === "C" || project.name === "AI Prototyping") ? "C" : projectName.charAt(0);
+  const projectDesc = project.subtitle || "AI prototyping and code generation.";
 
   return (
-    <div>
-      <div className="page-header">
-        <div>
-          <h1 className="page-title">{project.name}</h1>
-          <div className="page-header-meta">
-            <span>{project.defaultTeam}</span>
-            <span>·</span>
-            <span>{project.feature}</span>
-            <span>·</span>
-            <span className="badge badge-neutral">Active</span>
-            <span>·</span>
-            <span>{live} live</span>
-            <span>·</span>
-            <span>{resolved} resolved</span>
-            <span>·</span>
-            <span>{projectArtefacts.length} artefacts</span>
+    <div className="project-detail-screen">
+      {/* Breadcrumb */}
+      <div className="project-breadcrumb-row">
+        <button
+          className="btn-breadcrumb"
+          onClick={() => dispatch({ type: "NAVIGATE", screen: { name: "projects" } })}
+        >
+          Projects &lt;
+        </button>
+      </div>
+
+      {/* Main Project Card Header */}
+      <div className="project-detail-header-card">
+        <div className="project-header-left">
+          <span className="project-detail-avatar">
+            {projectInitial}
+          </span>
+          <div className="project-detail-titles">
+            <h1 className="project-detail-name">{projectName}</h1>
+            <div className="project-detail-desc">{projectDesc}</div>
+            <div className="project-detail-owner">Owner Sarah Chen · Product</div>
           </div>
+        </div>
+
+        <div className="project-header-right">
+          <span className="project-status-pill pill-at-risk">
+            ⏱ At risk, 2 open items
+          </span>
         </div>
       </div>
 
-      <div className="tabs">
-        <button className={`tab ${tab === "ai-brief" ? "active" : ""}`} onClick={() => setTab("ai-brief")}>
-          ✦ AI brief
+      {/* Sub-nav Tabs */}
+      <div className="project-nav-tabs">
+        <button
+          className={`project-nav-tab ${tab === "legal-review" || tab === "ai-brief" ? "active" : ""}`}
+          onClick={() => setTab("legal-review")}
+        >
+          Legal Review
         </button>
-        <button className={`tab ${tab === "issues" ? "active" : ""}`} onClick={() => setTab("issues")}>
-          Issues
+        <button
+          className={`project-nav-tab ${tab === "changes" ? "active" : ""}`}
+          onClick={() => setTab("changes")}
+        >
+          Changes
         </button>
-        <button className={`tab ${tab === "artefacts" ? "active" : ""}`} onClick={() => setTab("artefacts")}>
-          Artefacts
+        <button
+          className={`project-nav-tab ${tab === "documents" ? "active" : ""}`}
+          onClick={() => setTab("documents")}
+        >
+          Documents
+        </button>
+        <button
+          className={`project-nav-tab ${tab === "timeline" ? "active" : ""}`}
+          onClick={() => setTab("timeline")}
+        >
+          Timeline
         </button>
       </div>
 
-      {tab === "ai-brief" && (
-        <div>
-          <div className="notice section-block">
-            <span className="notice-icon">i</span>
-            <div>
-              <strong style={{ fontWeight: 600 }}>Where to start</strong>
-              <div style={{ marginTop: 3 }}>{WHERE_TO_START[projectId] ?? "Review the submitted document against the approval artefacts."}</div>
+      {/* TAB 1: Legal Review */}
+      {(tab === "legal-review" || tab === "ai-brief") && (
+        <div className="tab-content-legal-review">
+          {/* Notice / Callout */}
+          <div className="pink-callout-banner">
+            <div className="callout-icon">ⓘ</div>
+            <div className="callout-text">
+              <strong className="callout-heading">
+                Potential re-review trigger: AI provider changed since approval
+              </strong>
+              <div className="callout-sub">
+                Review the detected change and its relationship to the approved baseline.
+              </div>
             </div>
           </div>
 
-          {projectDocs.length > 0 ? (
-            <>
-              <div className="flex-row gap-10" style={{ marginBottom: 4, justifyContent: "space-between" }}>
-                <div className="flex-row gap-10">
-                  <select
-                    className="select"
-                    style={{ maxWidth: 280 }}
-                    value={selectedDocId}
-                    onChange={(e) => setSelectedDocId(e.target.value)}
-                  >
-                    {projectDocs.map((d) => (
-                      <option key={d.id} value={d.id}>
-                        {d.title}
-                      </option>
-                    ))}
-                  </select>
-                  {selectedDoc && docStatusBadge(selectedDoc.statusLabel)}
+          {/* Approved Baseline Card */}
+          <div className="project-white-card mb-20">
+            <div className="card-top-row">
+              <div>
+                <div className="card-overline-text">APPROVED BASELINE</div>
+                <h2 className="card-heading-title">Legal's reviewed position</h2>
+                <div className="card-heading-sub">
+                  What Legal previously reviewed and approved, including the facts, assumptions and conditions supporting the decision.
                 </div>
-                <a href="#" onClick={(e) => e.preventDefault()} style={{ fontSize: 12 }}>
-                  View full document
-                </a>
               </div>
+              <button className="btn-view-memo-outline">📄 View Legal memo</button>
+            </div>
 
-              <div className="ai-disclaimer">
-                AI-generated from the submitted document. Check it against the original. It does not recommend a
-                decision.
+            <div className="green-baseline-status-bar">
+              <span className="pill-approved-baseline">
+                ✓ Approved: Baseline v1, 24 Sep 2026
+              </span>
+              <a href="#" className="baseline-history-link" onClick={(e) => e.preventDefault()}>
+                Baseline history &gt;
+              </a>
+            </div>
+
+            {/* Subsection: Key facts as approved */}
+            <div className="card-section-block">
+              <div className="section-block-label">Key facts as approved</div>
+              <table className="facts-data-table">
+                <tbody>
+                  <tr>
+                    <td className="fact-col-label">AI model/provider</td>
+                    <td className="fact-col-val">Vendor A</td>
+                    <td className="fact-col-source"><a href="#" onClick={(e) => e.preventDefault()}>📄 Source</a></td>
+                  </tr>
+                  <tr>
+                    <td className="fact-col-label">Data types</td>
+                    <td className="fact-col-val">User prompts, designs, files, metadata</td>
+                    <td className="fact-col-source"><a href="#" onClick={(e) => e.preventDefault()}>📄 Source</a></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* Subsection: Key conditions as approved */}
+            <div className="card-section-block">
+              <table className="conditions-data-table">
+                <tbody>
+                  <tr>
+                    <td className="condition-check-text">✓ No customer data used for model training.</td>
+                    <td className="condition-dept-col">Product</td>
+                    <td className="condition-status-col"><span className="pill-active-green">Active</span></td>
+                  </tr>
+                  <tr>
+                    <td className="condition-check-text">✓ Retention must remain at 30 days or less.</td>
+                    <td className="condition-dept-col">Engineering</td>
+                    <td className="condition-status-col"><span className="pill-active-green">Active</span></td>
+                  </tr>
+                  <tr>
+                    <td className="condition-check-text">✓ Jurisdiction limited to approved regions.</td>
+                    <td className="condition-dept-col">Legal</td>
+                    <td className="condition-status-col"><span className="pill-active-green">Active</span></td>
+                  </tr>
+                  <tr>
+                    <td className="condition-check-text">ⓘ Update privacy notice for new data category.</td>
+                    <td className="condition-dept-col">Product</td>
+                    <td className="condition-status-col"><span className="pill-pending-yellow">Pending</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* Subsection: Sources */}
+            <div className="card-section-block">
+              <div className="section-block-label" style={{ marginBottom: 8 }}>Sources</div>
+              <div className="sources-chips-row">
+                <span className="source-chip-btn">📄 Legal review memo · 24 Sep 2026</span>
+                <span className="source-chip-btn">📄 PRD v3.1</span>
+                <span className="source-chip-btn">📄 Vendor A DPA</span>
+                <span className="source-chip-btn">📄 Security assessment</span>
+                <span className="source-chip-btn">📄 Privacy assessment</span>
               </div>
+            </div>
+          </div>
 
-              <div className="section-block">
-                <div className="section-label">What the document says</div>
-                <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, lineHeight: 1.7 }}>
-                  {(DOC_BULLETS[projectId] ?? [selectedDoc?.summary ?? ""]).map((b, i) => (
-                    <li key={i}>{b}</li>
-                  ))}
-                </ul>
-              </div>
+          {/* Open Issues Card */}
+          <div className="project-white-card">
+            <div className="open-issues-card-header">
+              <h2 className="card-heading-title" style={{ marginBottom: 0 }}>Open issues</h2>
+              <span className="items-count-text">2 items</span>
+            </div>
 
-              {comparison && (
-                <div className="section-block">
-                  <div className="section-label">Compared with what Legal approved</div>
-                  <table className="compare-table">
-                    <thead>
-                      <tr>
-                        <th>Fact</th>
-                        <th>Approved</th>
-                        <th>In this document</th>
-                        <th>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {comparison.map((row) => (
-                        <tr key={row.fact}>
-                          <td className="fact-name">{row.fact}</td>
-                          <td className="cell-secondary">{row.approved}</td>
-                          <td className="cell-secondary">{row.inDoc}</td>
-                          <td>
-                            <span className={statusTagClass(row.status)}>{row.status}</span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+            <div className="open-issues-list">
+              <div className="issue-row-card">
+                <div>
+                  <span className="pill-risk-high">High</span>
+                  <div className="issue-row-title">AI provider changed from Vendor A to Vendor B</div>
+                  <div className="issue-row-meta">Affects AI model/provider</div>
                 </div>
-              )}
-            </>
-          ) : (
-            <EmptyState>No documents submitted yet for this project.</EmptyState>
-          )}
+                <button
+                  className="link-open-ticket-btn"
+                  onClick={() =>
+                    dispatch({
+                      type: "NAVIGATE",
+                      screen: { name: "flag", flagId: "flag-1042", returnTo: { name: "project", projectId, projectTab: "legal-review" } },
+                    })
+                  }
+                >
+                  Open ticket &gt;
+                </button>
+              </div>
+
+              <div className="issue-row-card">
+                <div>
+                  <span className="pill-risk-medium">Medium</span>
+                  <div className="issue-row-title">Retention Increased from 20 to 25 days</div>
+                  <div className="issue-row-meta">Affects retention condition</div>
+                </div>
+                <button
+                  className="link-open-ticket-btn"
+                  onClick={() =>
+                    dispatch({
+                      type: "NAVIGATE",
+                      screen: { name: "flag", flagId: "flag-1042", returnTo: { name: "project", projectId, projectTab: "legal-review" } },
+                    })
+                  }
+                >
+                  Open ticket &gt;
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
-      {tab === "issues" && (
-        <div>
-          <FilterBar
-            filters={projectFilters}
-            onChange={(patch) => setProjectFilters((prev) => ({ ...prev, ...patch }))}
-          />
-          {isGrouped ? (
-            groupedIssuesView()
-          ) : (
-            <IssueTable
-              liveFlags={liveFlags}
-              resolvedFlags={resolvedFlags}
-              loggedFlags={loggedFlags}
-              returnTo={{ name: "project", projectId, projectTab: "issues" }}
-            />
-          )}
+      {/* TAB 2: Changes */}
+      {tab === "changes" && (
+        <div className="project-white-card">
+          <h2 className="card-heading-title">Changes</h2>
+          <div className="card-heading-sub mb-20">
+            Everything that changed in this project, who changed it, when, where it came from, and how it relates to the approved Legal baseline.
+          </div>
+
+          <div className="changes-timeline-list">
+            {/* Item 1 */}
+            <div className="timeline-row-item">
+              <div className="timeline-icon-col">
+                <span className="icon-sparkle">✦</span>
+              </div>
+              <div className="timeline-content-col">
+                <div className="timeline-item-meta">8 Oct, 10:42 AM · Product</div>
+                <div className="timeline-item-title">AI provider changed from Vendor A to Vendor B.</div>
+                <div className="timeline-item-sub">Source: PRD v4.2 · Affects: AI model/provider</div>
+                <button
+                  className="link-ticket-inline"
+                  onClick={() =>
+                    dispatch({
+                      type: "NAVIGATE",
+                      screen: { name: "flag", flagId: "flag-1042", returnTo: { name: "project", projectId, projectTab: "changes" } },
+                    })
+                  }
+                >
+                  Open #1042 &gt;
+                </button>
+              </div>
+              <div className="timeline-tag-col">
+                <span className="tag-re-review-trigger">Potential re-review trigger</span>
+              </div>
+            </div>
+
+            {/* Item 2 */}
+            <div className="timeline-row-item">
+              <div className="timeline-icon-col">
+                <span className="icon-sparkle">✦</span>
+              </div>
+              <div className="timeline-content-col">
+                <div className="timeline-item-meta">7 Oct, 3:21 PM · Engineering</div>
+                <div className="timeline-item-title">Retention increased from 20 to 25 days.</div>
+                <div className="timeline-item-sub">Source: Jira config change · Affects: retention condition</div>
+              </div>
+              <div className="timeline-tag-col">
+                <span className="tag-low-risk-gray">Low-risk, awaiting your confirmation</span>
+              </div>
+            </div>
+
+            {/* Item 3 */}
+            <div className="timeline-row-item">
+              <div className="timeline-icon-col">
+                <span className="icon-sparkle">✦</span>
+              </div>
+              <div className="timeline-content-col">
+                <div className="timeline-item-meta">5 Oct, 11:05 AM · Product</div>
+                <div className="timeline-item-title">New Slack export integration added.</div>
+                <div className="timeline-item-sub">Source: PRD v4.1</div>
+              </div>
+              <div className="timeline-tag-col">
+                <span className="tag-info-needed-yellow">Information needed</span>
+              </div>
+            </div>
+
+            {/* Item 4 */}
+            <div className="timeline-row-item">
+              <div className="timeline-icon-col">
+                <span className="icon-check-green">✓</span>
+              </div>
+              <div className="timeline-content-col">
+                <div className="timeline-item-meta">24 Sep · Legal</div>
+                <div className="timeline-item-title">Baseline v1 approved.</div>
+                <div className="timeline-item-sub">Source: Legal memo</div>
+              </div>
+              <div className="timeline-tag-col">
+                <span className="tag-approved-green">Approved baseline</span>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
-      {tab === "artefacts" && (
-        <div>
-          <div className="section-label">Legal reference library</div>
-          {projectArtefacts.length === 0 ? (
-            <EmptyState>No artefacts recorded for this project.</EmptyState>
-          ) : (
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>Artefact</th>
-                  <th>Date</th>
-                  <th>Relevance</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {projectArtefacts.map((a) => {
-                  const { title, date } = parseArtefact(a.name);
-                  return (
-                    <tr key={a.id}>
-                      <td className="cell-title">{title}</td>
-                      <td className="cell-tertiary">{date ?? "—"}</td>
-                      <td className="cell-secondary">Relied on: {a.reliedOn.join(", ")}</td>
-                      <td>
-                        {a.linkedFlagCategory === "Vendor change" && vendorFlagAwaiting && (
-                          <span className="badge badge-urgent">
-                            <span className="badge-dot" />1 flag affects this
-                          </span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          )}
+      {/* TAB 3: Documents */}
+      {tab === "documents" && (
+        <div className="project-white-card">
+          <h2 className="card-heading-title">Documents</h2>
+          <div className="card-heading-sub mb-20">
+            Documents connected to this project and used to prepare Legal context.
+          </div>
+
+          <div className="documents-row-list">
+            <div className="doc-list-item">
+              <div className="doc-item-main">
+                <span className="doc-file-icon">📄</span>
+                <span className="doc-title-text">PRD v4.2 - Updated 8 Oct</span>
+              </div>
+              <span className="doc-chevron-icon">&gt;</span>
+            </div>
+
+            <div className="doc-list-item">
+              <div className="doc-item-main">
+                <span className="doc-file-icon">📄</span>
+                <span className="doc-title-text">Legal review memo · 24 Sep 2026</span>
+              </div>
+              <span className="doc-chevron-icon">&gt;</span>
+            </div>
+
+            <div className="doc-list-item">
+              <div className="doc-item-main">
+                <span className="doc-file-icon">📄</span>
+                <span className="doc-title-text">Vendor A DPA · 18 Sep 2026</span>
+              </div>
+              <span className="doc-chevron-icon">&gt;</span>
+            </div>
+
+            <div className="doc-list-item">
+              <div className="doc-item-main">
+                <span className="doc-file-icon">📄</span>
+                <span className="doc-title-text">Security assessment · 20 Sep 2026</span>
+              </div>
+              <span className="doc-chevron-icon">&gt;</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 4: Timeline */}
+      {tab === "timeline" && (
+        <div className="project-white-card">
+          <h2 className="card-heading-title">Project timeline</h2>
+          <div className="card-heading-sub mb-20">
+            Decisions, actions, and important project events.
+          </div>
+
+          <div className="documents-row-list">
+            <div className="doc-list-item">
+              <div className="doc-item-main">
+                <span className="doc-file-icon">📄</span>
+                <span className="doc-title-text">Baseline v1 approved · 24 Sep 2026</span>
+              </div>
+              <span className="doc-chevron-icon">&gt;</span>
+            </div>
+
+            <div className="doc-list-item">
+              <div className="doc-item-main">
+                <span className="doc-file-icon">📄</span>
+                <span className="doc-title-text">Project monitoring started · 20 Sep 2026</span>
+              </div>
+              <span className="doc-chevron-icon">&gt;</span>
+            </div>
+          </div>
         </div>
       )}
     </div>

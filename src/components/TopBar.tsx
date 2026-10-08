@@ -9,15 +9,32 @@ export function TopBar() {
   return (
     <div className="main-topbar">
       <div className="main-topbar-left">
-        {state.history.length > 0 && (
+        <div className="topbar-nav-controls">
           <button
-            className="topbar-back-btn"
+            className="topbar-nav-btn"
+            disabled={state.history.length === 0}
             title="Go back to previous page"
             onClick={() => dispatch({ type: "GO_BACK" })}
           >
             ← Back
           </button>
-        )}
+          <button
+            className="topbar-nav-btn"
+            disabled={state.forwardHistory.length === 0}
+            title="Go forward to next page"
+            onClick={() => dispatch({ type: "GO_FORWARD" })}
+          >
+            Forward →
+          </button>
+          <button
+            className="topbar-nav-btn icon-refresh"
+            title="Refresh page"
+            onClick={() => window.location.reload()}
+          >
+            ↻
+          </button>
+        </div>
+        
         <div className="main-topbar-search">
           <span className="search-icon">🔍</span>
           <input

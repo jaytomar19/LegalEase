@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, type ReactNode } from "react";
+import { createContext, useContext, useReducer, useEffect, type ReactNode } from "react";
 import type {
   Project,
   ChangeDocument,
@@ -32,6 +32,7 @@ export type AppState = {
   role: Role;
   screen: ScreenState;
   history: ScreenState[];
+  forwardHistory: ScreenState[];
   filters: { show: ShowFilter; groupBy: GroupBy; keyword: string };
   submissionResult: SubmissionResult;
   trackingBadgeBase: number;
@@ -49,6 +50,7 @@ function createInitialState(): AppState {
     role: "magfi",
     screen: { name: "home" },
     history: [],
+    forwardHistory: [],
     filters: { show: "all", groupBy: null, keyword: "" },
     submissionResult: null,
     trackingBadgeBase: 3,
@@ -62,6 +64,8 @@ type Action =
   | { type: "SET_ROLE"; role: Role }
   | { type: "NAVIGATE"; screen: ScreenState }
   | { type: "GO_BACK" }
+  | { type: "GO_FORWARD" }
+  | { type: "SYNC_POPSTATE"; screen: ScreenState }
   | { type: "SET_FILTERS"; filters: Partial<AppState["filters"]> }
   | { type: "TOGGLE_GROUP_BY"; groupBy: GroupBy }
   | { type: "SET_GROUP_BY"; groupBy: GroupBy }
@@ -112,14 +116,49 @@ function reducer(state: AppState, action: Action): AppState {
         state.screen.projectId === action.screen.projectId &&
         state.screen.flagId === action.screen.flagId;
       const newHistory = isSame ? state.history : [...state.history, state.screen];
-      return { ...state, screen: action.screen, history: newHistory };
+      try {
+        if (!isSame && typeof window !== "undefined" && window.history) {
+          window.history.pushState(action.screen, "", window.location.pathname);
+        }
+      } catch {
+        // Safe fallback
+      }
+      return { ...state, screen: action.screen, history: newHistory, forwardHistory: [] };
     }
 
     case "GO_BACK": {
       if (state.history.length === 0) return state;
       const prevScreen = state.history[state.history.length - 1];
       const newHistory = state.history.slice(0, -1);
-      return { ...state, screen: prevScreen, history: newHistory };
+      const newForward = [...state.forwardHistory, state.screen];
+      try {
+        if (typeof window !== "undefined" && window.history) {
+          window.history.back();
+        }
+      } catch {
+        // Safe fallback
+      }
+      return { ...state, screen: prevScreen, history: newHistory, forwardHistory: newForward };
+    }
+
+    case "GO_FORWARD": {
+      if (state.forwardHistory.length === 0) return state;
+      const nextScreen = state.forwardHistory[state.forwardHistory.length - 1];
+      const newForward = state.forwardHistory.slice(0, -1);
+      const newHistory = [...state.history, state.screen];
+      try {
+        if (typeof window !== "undefined" && window.history) {
+          window.history.forward();
+        }
+      } catch {
+        // Safe fallback
+      }
+      return { ...state, screen: nextScreen, history: newHistory, forwardHistory: newForward };
+    }
+
+    case "SYNC_POPSTATE": {
+      if (!action.screen) return state;
+      return { ...state, screen: action.screen };
     }
 
     case "SET_FILTERS":
@@ -374,6 +413,17 @@ const StoreContext = createContext<
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, undefined, createInitialState);
+
+  useEffect(() => {
+    function handlePopState(e: PopStateEvent) {
+      if (e.state) {
+        dispatch({ type: "SYNC_POPSTATE", screen: e.state });
+      }
+    }
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
   return <StoreContext.Provider value={{ state, dispatch }}>{children}</StoreContext.Provider>;
 }
 

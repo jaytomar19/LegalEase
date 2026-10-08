@@ -137,10 +137,10 @@ export type ScreenState = {
   name: ScreenName;
   projectId?: string;
   flagId?: string;
-  projectTab?: "ai-brief" | "issues" | "artefacts";
+  projectTab?: "legal-review" | "changes" | "documents" | "timeline" | "ai-brief" | "issues" | "artefacts";
   // Where to return to when the Flag Detail panel (screen "flag") is closed.
   // Defaults to Home when not set.
-  returnTo?: { name: ScreenName; projectId?: string; projectTab?: "ai-brief" | "issues" | "artefacts" };
+  returnTo?: { name: ScreenName; projectId?: string; projectTab?: "legal-review" | "changes" | "documents" | "timeline" | "ai-brief" | "issues" | "artefacts" };
 };
 
 export type SubmissionResult =
