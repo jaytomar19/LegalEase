@@ -42,12 +42,13 @@ export function ScreenProjects() {
 
       <div className="filter-controls-row">
         <input
-          className="input-search"
+          className="input"
+          style={{ maxWidth: 220 }}
           placeholder="Search projects…"
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
         />
-        <select className="select-dropdown" value={teamFilter} onChange={(e) => setTeamFilter(e.target.value)}>
+        <select className="select" style={{ maxWidth: 180 }} value={teamFilter} onChange={(e) => setTeamFilter(e.target.value)}>
           <option value="all">Department: All</option>
           {teams.map((t) => (
             <option key={t} value={t}>
@@ -56,7 +57,8 @@ export function ScreenProjects() {
           ))}
         </select>
         <select
-          className="select-dropdown"
+          className="select"
+          style={{ maxWidth: 180 }}
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
         >
@@ -89,6 +91,10 @@ export function ScreenProjects() {
                 <div className="meta-row">
                   <span className="meta-lbl">Team</span>
                   <span className="meta-val">{project.defaultTeam}</span>
+                </div>
+                <div className="meta-row">
+                  <span className="meta-lbl">People</span>
+                  <span className="meta-val">{project.people} ({project.avatars.join(" ")})</span>
                 </div>
                 <div className="meta-row">
                   <span className="meta-lbl">Status</span>
