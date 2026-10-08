@@ -9,6 +9,8 @@ import { Screen3FlagDetail } from "./screens/Screen3FlagDetail";
 import { Screen4DecisionSent } from "./screens/Screen4DecisionSent";
 import { Screen5TeamResponse } from "./screens/Screen5TeamResponse";
 import { Screen6Tickets } from "./screens/Screen6Tickets";
+import { ScreenProjects } from "./screens/ScreenProjects";
+import { ScreenSettings } from "./screens/ScreenSettings";
 
 function SubmittingTransition() {
   const { state } = useStore();
@@ -36,6 +38,10 @@ function renderMagfiScreen(screen: ScreenState): ReactNode {
       return <Screen2Project key={screen.projectId} screen={screen} />;
     case "tickets":
       return <Screen6Tickets />;
+    case "projects":
+      return <ScreenProjects />;
+    case "settings":
+      return <ScreenSettings />;
     case "decision-sent":
       return <Screen4DecisionSent />;
     case "home":

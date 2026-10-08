@@ -124,7 +124,7 @@ export function Screen1Home() {
 
       <div className="page-header">
         <div>
-          <h1 className="page-title">Good morning, Magfi!</h1>
+          <h1 className="page-title">Good morning, magfi!</h1>
           <div className="page-subtitle">Here's what needs your attention today.</div>
         </div>
       </div>

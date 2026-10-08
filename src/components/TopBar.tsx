@@ -1,32 +1,36 @@
-import { useStore } from "../state/store";
+import { useState } from "react";
 import { NotificationBell } from "./NotificationBell";
 
-function contextTitle(state: ReturnType<typeof useStore>["state"]): string {
-  const screen = state.screen;
-  const effective = screen.name === "flag" ? screen.returnTo ?? { name: "home" as const } : screen;
-
-  if (effective.name === "tickets") return "Tickets";
-  if (effective.name === "decision-sent") {
-    const flag = state.flags.find((f) => f.id === screen.flagId);
-    const project = flag ? state.projects.find((p) => p.id === flag.projectId) : undefined;
-    return project?.name ?? "Decision sent";
-  }
-  if (effective.name === "project") {
-    const project = state.projects.find((p) => p.id === effective.projectId);
-    return project?.name ?? "Project";
-  }
-  if (state.filters.groupBy === "ai-tracking") return "AI Tracking";
-  return "Overview";
-}
-
+// The search input, language selector and theme toggle are visual-only —
+// matching the reference's top bar — and are not wired to real search,
+// localization or theming behavior, which are outside the IA2 prototype scope.
 export function TopBar() {
-  const store = useStore();
-  const { state } = store;
+  const [search, setSearch] = useState("");
 
   return (
     <div className="main-topbar">
-      <div className="main-topbar-context">{contextTitle(state)}</div>
-      <NotificationBell />
+      <div className="main-topbar-search">
+        <span className="text-tertiary">⌕</span>
+        <input
+          className="main-topbar-search-input"
+          placeholder="Search tickets, projects, documents, people…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+
+      <div className="main-topbar-right">
+        <button className="link-btn" style={{ fontSize: 13 }} title="Language (not part of IA2 scope)">
+          EN ⌄
+        </button>
+        <button className="icon-btn-ghost" title="Theme (not part of IA2 scope)">
+          ☾
+        </button>
+        <NotificationBell />
+        <span className="user-chip-avatar" style={{ width: 28, height: 28, fontSize: 11 }}>
+          MG
+        </span>
+      </div>
     </div>
   );
 }

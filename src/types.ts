@@ -129,7 +129,9 @@ export type ScreenName =
   | "flag"
   | "decision-sent"
   | "team-response"
-  | "tickets";
+  | "tickets"
+  | "projects"
+  | "settings";
 
 export type ScreenState = {
   name: ScreenName;
