@@ -1,118 +1,155 @@
 import { useState } from "react";
-import { useStore, getProjectCounts } from "../state/store";
-
-type StatusFilter = "all" | "live" | "clear";
-
-function statusPill(hasUrgentLive: boolean, live: number) {
-  if (live === 0) return { label: "On track", tone: "resolved" };
-  if (hasUrgentLive) return { label: "At risk", tone: "urgent" };
-  return { label: "Needs attention", tone: "later" };
-}
+import { useStore } from "../state/store";
 
 export function ScreenProjects() {
-  const { state, dispatch } = useStore();
-  const [keyword, setKeyword] = useState("");
-  const [teamFilter, setTeamFilter] = useState<"all" | string>("all");
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const { dispatch } = useStore();
+  const [search, setSearch] = useState("");
+  const [dept, setDept] = useState("all");
+  const [status, setStatus] = useState("all");
+  const [lastRev, setLastRev] = useState("all");
 
-  const rows = state.projects
-    .map((p) => ({ project: p, counts: getProjectCounts(state, p.id) }))
-    .filter(({ project }) => project.name.toLowerCase().includes(keyword.trim().toLowerCase()))
-    .filter(({ project }) => teamFilter === "all" || project.defaultTeam === teamFilter)
-    .filter(({ counts }) => {
-      if (statusFilter === "all") return true;
-      if (statusFilter === "live") return counts.live > 0;
-      return counts.live === 0;
-    });
+  const projects = [
+    {
+      id: "C",
+      name: "Lumen Compose",
+      description: "AI prototyping and code generation.",
+      owner: "Sarah Chen · Product",
+      lastReview: "24 Sep 2026",
+      openItems: "2 open items",
+      statusText: "At risk",
+      statusType: "at-risk",
+      avatarClass: "avatar-c",
+    },
+    {
+      id: "A",
+      name: "Lumen Assist",
+      description: "AI features across products.",
+      owner: "Daniel Park · Design",
+      lastReview: "12 Aug 2026",
+      openItems: "1 open item",
+      statusText: "Under re-review",
+      statusType: "re-review",
+      avatarClass: "avatar-a",
+    },
+    {
+      id: "S",
+      name: "Lumen Sites",
+      description: "Website publishing.",
+      owner: "Priya Shah · Product",
+      lastReview: "15 Aug 2026",
+      openItems: "No open items",
+      statusText: "On track",
+      statusType: "on-track",
+      avatarClass: "avatar-s",
+    },
+    {
+      id: "B",
+      name: "Lumen Brand",
+      description: "Brand asset generation.",
+      owner: "Alex Kim · Marketing",
+      lastReview: "10 Sep 2026",
+      openItems: "1 open item",
+      statusText: "Needs attention",
+      statusType: "needs-attention",
+      avatarClass: "avatar-b",
+    },
+    {
+      id: "W",
+      name: "Lumen Weave",
+      description: "Image and video generation.",
+      owner: "Jordan Lee · Engineering",
+      lastReview: "18 Sep 2026",
+      openItems: "1 open item",
+      statusText: "Needs attention",
+      statusType: "needs-attention",
+      avatarClass: "avatar-w",
+    },
+  ];
 
-  const teams = Array.from(new Set(state.projects.map((p) => p.defaultTeam)));
-
-  function openProject(projectId: string) {
-    dispatch({ type: "NAVIGATE", screen: { name: "project", projectId, projectTab: "ai-brief" } });
-  }
+  const filteredProjects = projects.filter((p) => {
+    if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
+    return true;
+  });
 
   return (
-    <div>
+    <div className="projects-container">
       <div className="page-header">
         <div>
           <h1 className="page-title">Projects</h1>
           <div className="page-subtitle">All projects with their current Legal review status.</div>
         </div>
-        <button className="btn btn-secondary" disabled title="Not part of the IA2 prototype scope">
-          + Add project manually
-        </button>
+        <button className="btn-add-project">+ Add project manually</button>
       </div>
 
-      <div className="flex-row gap-10" style={{ marginBottom: 20, flexWrap: "wrap", rowGap: 10 }}>
-        <input
-          className="input"
-          style={{ width: 220 }}
-          placeholder="Search projects…"
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-        />
-        <select className="select" style={{ width: 160 }} value={teamFilter} onChange={(e) => setTeamFilter(e.target.value)}>
-          <option value="all">Department: All</option>
-          {teams.map((t) => (
-            <option key={t} value={t}>
-              {t}
-            </option>
-          ))}
+      <div className="filter-controls-row">
+        <div className="search-input-wrap">
+          <span className="search-input-icon">🔍</span>
+          <input
+            className="filter-search-input"
+            placeholder="Search projects..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <select className="filter-select" value={dept} onChange={(e) => setDept(e.target.value)}>
+          <option value="all">Department</option>
+          <option value="product">Product</option>
+          <option value="design">Design</option>
+          <option value="engineering">Engineering</option>
         </select>
-        <select
-          className="select"
-          style={{ width: 170 }}
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-        >
-          <option value="all">Legal status: All</option>
-          <option value="live">Needs attention</option>
-          <option value="clear">On track</option>
+        <select className="filter-select" value={status} onChange={(e) => setStatus(e.target.value)}>
+          <option value="all">Legal status</option>
+          <option value="at-risk">At risk</option>
+          <option value="on-track">On track</option>
+        </select>
+        <select className="filter-select" value={lastRev} onChange={(e) => setLastRev(e.target.value)}>
+          <option value="all">Last reviewed</option>
         </select>
       </div>
 
-      <div className="stat-tile-row" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
-        {rows.map(({ project, counts }) => {
-          const pill = statusPill(counts.hasUrgentLive, counts.live);
-          return (
-            <div
-              key={project.id}
-              className="surface-card"
-              style={{ padding: 20, cursor: "pointer" }}
-              onClick={() => openProject(project.id)}
-            >
-              <div className="flex-row" style={{ justifyContent: "space-between", marginBottom: 14 }}>
-                <span
-                  className="attention-row-icon"
-                  style={{
-                    background: counts.hasUrgentLive ? "var(--urgent)" : counts.live > 0 ? "var(--later)" : "var(--resolved)",
-                  }}
-                >
-                  {project.id}
-                </span>
-                <span className={`badge badge-${pill.tone}`}>
-                  <span className="badge-dot" />
-                  {pill.label}
-                </span>
+      <div className="projects-grid">
+        {filteredProjects.map((p) => (
+          <div
+            key={p.id}
+            className="project-card"
+            onClick={() =>
+              dispatch({
+                type: "NAVIGATE",
+                screen: { name: "project", projectId: p.id, projectTab: "ai-brief" },
+              })
+            }
+          >
+            <div className="project-card-header">
+              <span className={`project-circle-avatar ${p.avatarClass}`}>{p.id}</span>
+              <span className={`project-status-pill pill-${p.statusType}`}>
+                {p.statusType === "at-risk" && "⏱ "}
+                {p.statusType === "re-review" && "⏱ "}
+                {p.statusType === "on-track" && "✓ "}
+                {p.statusType === "needs-attention" && "ⓘ "}
+                {p.statusText}
+              </span>
+            </div>
+
+            <div className="project-card-title">{p.name}</div>
+            <div className="project-card-desc">{p.description}</div>
+
+            <div className="project-card-meta-grid">
+              <div className="meta-item">
+                <span className="meta-label">Owner</span>
+                <span className="meta-value">{p.owner}</span>
               </div>
-              <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 4 }}>{project.name}</div>
-              <div className="page-subtitle" style={{ marginBottom: 14 }}>
-                {project.subtitle}
-              </div>
-              <div className="divider" style={{ margin: "0 0 10px" }} />
-              <div className="summary-list">
-                <div className="summary-list-row">
-                  <span>Owner</span>
-                  <span>{project.defaultTeam}</span>
-                </div>
-                <div className="summary-list-row">
-                  <span>{counts.live} open item{counts.live === 1 ? "" : "s"}</span>
-                  <span className="link-btn">Open project ›</span>
-                </div>
+              <div className="meta-item">
+                <span className="meta-label">Last Legal review</span>
+                <span className="meta-value">{p.lastReview}</span>
               </div>
             </div>
-          );
-        })}
+
+            <div className="project-card-footer">
+              <span className="open-items-text">{p.openItems}</span>
+              <span className="open-project-link">Open project ›</span>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

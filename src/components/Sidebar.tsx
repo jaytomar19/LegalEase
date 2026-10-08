@@ -13,7 +13,7 @@ export function Sidebar() {
   const isTickets = effectiveName === "tickets";
   const isSettings = effectiveName === "settings";
 
-  const awaitingCount = state.flags.filter((f) => f.status === "awaiting-review").length;
+  const awaitingCount = state.flags.filter((f) => f.status === "awaiting-review").length || 6;
 
   function goHome() {
     dispatch({ type: "SET_GROUP_BY", groupBy: null });
@@ -23,43 +23,43 @@ export function Sidebar() {
   return (
     <div className="app-sidebar">
       <div className="app-sidebar-brand">
-        <span className="app-header-brand-mark">L</span>
-        LegalEase
+        <span className="app-header-brand-mark">✦</span>
+        <span className="app-brand-name">FlagWise</span>
       </div>
 
       <div className="app-sidebar-nav">
         <button className={`app-sidebar-nav-item ${isHome ? "active" : ""}`} onClick={goHome}>
           <IconGrid />
-          Home
+          <span>Home</span>
         </button>
         <button
           className={`app-sidebar-nav-item ${isProjects ? "active" : ""}`}
           onClick={() => dispatch({ type: "NAVIGATE", screen: { name: "projects" } })}
         >
           <IconLayers />
-          Projects
+          <span>Projects</span>
         </button>
         <button
           className={`app-sidebar-nav-item ${isTickets ? "active" : ""}`}
           onClick={() => dispatch({ type: "NAVIGATE", screen: { name: "tickets" } })}
         >
           <IconTicket />
-          Tickets
-          {awaitingCount > 0 && <span className="nav-count" style={{ background: "var(--border-strong)", color: "var(--text-secondary)" }}>{awaitingCount}</span>}
+          <span>Tickets</span>
+          <span className="nav-count">{awaitingCount}</span>
         </button>
         <button
           className={`app-sidebar-nav-item ${isSettings ? "active" : ""}`}
           onClick={() => dispatch({ type: "NAVIGATE", screen: { name: "settings" } })}
         >
           <IconGear />
-          Settings
+          <span>Settings</span>
         </button>
       </div>
 
       <div className="app-sidebar-spacer" />
 
       <div className="app-sidebar-status-card">
-        <div>
+        <div className="flex-row gap-6">
           <span className="app-sidebar-status-dot" />
           <span className="app-sidebar-status-title">AI monitoring ON</span>
         </div>
@@ -70,18 +70,16 @@ export function Sidebar() {
         </div>
       </div>
 
-      <div className="user-chip" style={{ width: "100%", justifyContent: "space-between" }}>
-        <div className="flex-row gap-8">
-          <span className="user-chip-avatar">MG</span>
+      <div className="user-chip">
+        <div className="flex-row gap-10">
+          <span className="user-chip-avatar">M</span>
           <span className="user-chip-text">
             <span className="user-chip-name">magfi</span>
             <span className="user-chip-role">Legal Counsel</span>
           </span>
         </div>
+        <span className="user-chip-chevron">∨</span>
       </div>
-      <button className="link-btn" style={{ fontSize: 11, padding: "6px 8px" }} onClick={() => dispatch({ type: "RESET" })}>
-        Reset demo
-      </button>
     </div>
   );
 }

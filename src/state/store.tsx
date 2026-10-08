@@ -45,7 +45,7 @@ function createInitialState(): AppState {
     trackingItems: INITIAL_TRACKING_ITEMS.map((t) => ({ ...t })),
     notifications: INITIAL_NOTIFICATIONS.map((n) => ({ ...n })),
     role: "magfi",
-    screen: { name: "submit" },
+    screen: { name: "home" },
     filters: { show: "all", groupBy: null, keyword: "" },
     submissionResult: null,
     trackingBadgeBase: 3,
