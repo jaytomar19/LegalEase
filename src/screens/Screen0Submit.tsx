@@ -6,14 +6,14 @@ import { IconCheck } from "../components/icons";
 
 const TEAMS: Team[] = ["Engineering", "Product management", "Design"];
 
-const MONITORED_CATEGORIES: { label: string; tone: string }[] = [
-  { label: "Vendor change", tone: "c-blue" },
-  { label: "Training", tone: "c-lavender" },
-  { label: "Data kept longer", tone: "c-pink" },
-  { label: "Data category", tone: "c-peach" },
-  { label: "Jurisdiction", tone: "c-yellow" },
-  { label: "Default setting", tone: "c-green" },
-  { label: "Generated content", tone: "c-blue" },
+const MONITORED_CATEGORIES = [
+  "Vendor change",
+  "Training",
+  "Data kept longer",
+  "Data category",
+  "Jurisdiction",
+  "Default setting",
+  "Generated content",
 ];
 
 export function Screen0Submit() {
@@ -287,8 +287,8 @@ export function Screen0Submit() {
                   </div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                     {MONITORED_CATEGORIES.map((c) => (
-                      <span key={c.label} className={`pastel-chip ${c.tone}`}>
-                        {c.label}
+                      <span key={c} className="badge badge-neutral">
+                        {c}
                       </span>
                     ))}
                   </div>
