@@ -31,6 +31,7 @@ export type AppState = {
   notifications: Notification[];
   role: Role;
   screen: ScreenState;
+  history: ScreenState[];
   filters: { show: ShowFilter; groupBy: GroupBy; keyword: string };
   submissionResult: SubmissionResult;
   trackingBadgeBase: number;
@@ -47,6 +48,7 @@ function createInitialState(): AppState {
     notifications: INITIAL_NOTIFICATIONS.map((n) => ({ ...n })),
     role: "magfi",
     screen: { name: "home" },
+    history: [],
     filters: { show: "all", groupBy: null, keyword: "" },
     submissionResult: null,
     trackingBadgeBase: 3,
@@ -59,6 +61,7 @@ type Action =
   | { type: "TOGGLE_DARK_MODE" }
   | { type: "SET_ROLE"; role: Role }
   | { type: "NAVIGATE"; screen: ScreenState }
+  | { type: "GO_BACK" }
   | { type: "SET_FILTERS"; filters: Partial<AppState["filters"]> }
   | { type: "TOGGLE_GROUP_BY"; groupBy: GroupBy }
   | { type: "SET_GROUP_BY"; groupBy: GroupBy }
@@ -103,8 +106,21 @@ function reducer(state: AppState, action: Action): AppState {
     case "SET_ROLE":
       return { ...state, role: action.role };
 
-    case "NAVIGATE":
-      return { ...state, screen: action.screen };
+    case "NAVIGATE": {
+      const isSame =
+        state.screen.name === action.screen.name &&
+        state.screen.projectId === action.screen.projectId &&
+        state.screen.flagId === action.screen.flagId;
+      const newHistory = isSame ? state.history : [...state.history, state.screen];
+      return { ...state, screen: action.screen, history: newHistory };
+    }
+
+    case "GO_BACK": {
+      if (state.history.length === 0) return state;
+      const prevScreen = state.history[state.history.length - 1];
+      const newHistory = state.history.slice(0, -1);
+      return { ...state, screen: prevScreen, history: newHistory };
+    }
 
     case "SET_FILTERS":
       return { ...state, filters: { ...state.filters, ...action.filters } };
