@@ -245,7 +245,7 @@ export function Screen3FlagDetail() {
               )}
 
               {choice === "changes-required" && (
-                <div className="panel-surface panel-surface-pad section-block">
+                <div className="panel-surface panel-surface-pad" style={{ marginTop: 12 }}>
                   <div className="field-label" style={{ marginBottom: 10 }}>
                     Required legal changes (suggested by the agent, edit as needed)
                   </div>
@@ -310,7 +310,7 @@ export function Screen3FlagDetail() {
                   </button>
                 </div>
               )}
-            </>
+            </div>
           )}
 
           {flag.audit && (

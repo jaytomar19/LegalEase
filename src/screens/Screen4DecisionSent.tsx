@@ -34,45 +34,47 @@ export function Screen4DecisionSent() {
         </div>
       </div>
 
-      <table className="table section-block">
-        <tbody>
-          <tr>
-            <td className="cell-secondary" style={{ width: "30%" }}>
-              Decision
-            </td>
-            <td className="cell-title">{outcomeLabel(flag.outcome)}</td>
-          </tr>
-          <tr>
-            <td className="cell-secondary">Reviewer</td>
-            <td>Magfi, Junior Counsel</td>
-          </tr>
-          {flag.outcome === "comprehensive-review" && (
+      <div className="panel-surface panel-surface-pad section-block">
+        <table className="table">
+          <tbody>
             <tr>
-              <td className="cell-secondary">Ticket</td>
-              <td>
-                {flag.ticketId} · assigned to {flag.assignee}
+              <td className="cell-secondary" style={{ width: "30%" }}>
+                Decision
               </td>
+              <td className="cell-title">{outcomeLabel(flag.outcome)}</td>
             </tr>
-          )}
-          <tr>
-            <td className="cell-secondary">Timestamp</td>
-            <td>today</td>
-          </tr>
-          <tr>
-            <td className="cell-secondary">Next step</td>
-            <td>{nextStep}</td>
-          </tr>
-          {flag.note && (
             <tr>
-              <td className="cell-secondary">Note</td>
-              <td>{flag.note}</td>
+              <td className="cell-secondary">Reviewer</td>
+              <td>Magfi, Junior Counsel</td>
             </tr>
-          )}
-        </tbody>
-      </table>
+            {flag.outcome === "comprehensive-review" && (
+              <tr>
+                <td className="cell-secondary">Ticket</td>
+                <td>
+                  {flag.ticketId} · assigned to {flag.assignee}
+                </td>
+              </tr>
+            )}
+            <tr>
+              <td className="cell-secondary">Timestamp</td>
+              <td>today</td>
+            </tr>
+            <tr>
+              <td className="cell-secondary">Next step</td>
+              <td>{nextStep}</td>
+            </tr>
+            {flag.note && (
+              <tr>
+                <td className="cell-secondary">Note</td>
+                <td>{flag.note}</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
       {flag.outcome === "changes-required" && flag.requiredChanges && flag.requiredChanges.length > 0 && (
-        <div className="section-block">
+        <div className="panel-surface panel-surface-pad section-block">
           <div className="section-label">Required follow-up</div>
           <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, lineHeight: 1.8 }}>
             {flag.requiredChanges.map((c) => (
@@ -83,7 +85,7 @@ export function Screen4DecisionSent() {
       )}
 
       {flag.audit && (
-        <div className="section-block">
+        <div className="panel-surface panel-surface-pad section-block">
           <div className="section-label">Audit trail</div>
           <div className="audit-timeline">
             {flag.audit.map((a, i) => (
