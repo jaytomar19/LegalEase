@@ -19,7 +19,7 @@ type TicketItem = {
   waitingFor?: string;
 };
 
-const ALL_TICKETS: TicketItem[] = [
+const INITIAL_TICKETS: TicketItem[] = [
   {
     flagId: "flag-1042",
     ticketId: "#1042",
@@ -153,11 +153,26 @@ const ALL_TICKETS: TicketItem[] = [
 
 export function Screen6Tickets() {
   const { dispatch } = useStore();
+  const [ticketsList, setTicketsList] = useState<TicketItem[]>(INITIAL_TICKETS);
   const [search, setSearch] = useState("");
   const [projectFilter, setProjectFilter] = useState("all");
   const [urgencyFilter, setUrgencyFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortBy, setSortBy] = useState("default");
+
+  // Overlay states
+  const [showRaiseQueriesDrawer, setShowRaiseQueriesDrawer] = useState(false);
+  const [threadState, setThreadState] = useState(1);
+
+  const [showLogQueryModal, setShowLogQueryModal] = useState(false);
+  const [logForm, setLogForm] = useState({
+    project: "",
+    question: "",
+    dept: "",
+    urgency: "",
+    source: "",
+    attachments: "",
+  });
 
   function openFlag(flagId: string) {
     dispatch({
@@ -174,10 +189,38 @@ export function Screen6Tickets() {
     setSortBy("default");
   }
 
+  function handleLogQuerySubmit() {
+    if (!logForm.question) {
+      alert("Please enter a question or query title.");
+      return;
+    }
+    const newIdNum = 1080 + ticketsList.length;
+    const newTicket: TicketItem = {
+      flagId: `flag-${newIdNum}`,
+      ticketId: `#${newIdNum}`,
+      title: logForm.question,
+      projectName: logForm.project || "AI Prototyping",
+      department: logForm.dept || "Product",
+      urgency: (logForm.urgency as "High" | "Medium" | "Low") || "Medium",
+      status: "awaiting",
+      tags: ["Logged query", logForm.source ? "External" : "Query"],
+      author: "Legal Counsel · Just now",
+      avatarClass: "avatar-sc",
+      avatarInitials: "M",
+      dateStr: "Today",
+      timestamp: Date.now(),
+      affects: logForm.source ? `Source: ${logForm.source}` : "Affects: Legal baseline",
+    };
+
+    setTicketsList([newTicket, ...ticketsList]);
+    setShowLogQueryModal(false);
+    setLogForm({ project: "", question: "", dept: "", urgency: "", source: "", attachments: "" });
+  }
+
   const isFiltered = search || projectFilter !== "all" || urgencyFilter !== "all" || statusFilter !== "all" || sortBy !== "default";
 
   // Filter & Sort
-  const filteredTickets = ALL_TICKETS.filter((t) => {
+  const filteredTickets = ticketsList.filter((t) => {
     // Search
     if (search) {
       const q = search.toLowerCase();
@@ -219,10 +262,25 @@ export function Screen6Tickets() {
 
   return (
     <div className="tickets-container">
-      <div className="page-header" style={{ marginBottom: 14 }}>
+      {/* Page Header */}
+      <div className="page-header" style={{ marginBottom: 14, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div>
           <h1 className="page-title">Tickets</h1>
           <div className="page-subtitle">Legal queries and AI detected changes requiring attention.</div>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <button
+            className="btn-raise-queries-outline"
+            onClick={() => setShowRaiseQueriesDrawer(true)}
+          >
+            How departments raise queries
+          </button>
+          <button
+            className="btn-log-query-dark"
+            onClick={() => setShowLogQueryModal(true)}
+          >
+            + Log query
+          </button>
         </div>
       </div>
 
@@ -467,6 +525,246 @@ export function Screen6Tickets() {
                   </div>
                 ))
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* OVERLAY 1: How departments raise queries Side Drawer */}
+      {showRaiseQueriesDrawer && (
+        <div className="drawer-backdrop" onClick={() => setShowRaiseQueriesDrawer(false)}>
+          <div className="drawer-container" onClick={(e) => e.stopPropagation()}>
+            <div className="drawer-header">
+              <div>
+                <div className="drawer-overline">CONNECTED CHANNELS</div>
+                <h2 className="drawer-title">How departments raise queries</h2>
+                <div className="drawer-subtitle">
+                  Departments never need to open FlagWise. They use Slack, a Jira "legal query" ticket type, or the legal inbox, and get status updates in the same place.
+                </div>
+              </div>
+              <button className="modal-close-btn" onClick={() => setShowRaiseQueriesDrawer(false)}>✕</button>
+            </div>
+
+            <div className="drawer-body">
+              {threadState === 1 && (
+                <div className="slack-thread-card">
+                  <div className="channel-header"># product-compose</div>
+                  <div className="slack-user-msg">
+                    <span className="author-avatar avatar-sc">SC</span>
+                    <div>
+                      <div className="slack-author-line"><strong>Sarah Chen</strong> <span className="text-muted">10:42 AM</span></div>
+                      <div className="slack-text">
+                        <span className="mention">@FlagWise</span> Can Legal confirm if we can use Vendor B for the Compose AI model?
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flagwise-bot-card">
+                    <div className="bot-header">
+                      <span className="bot-icon">✨</span>
+                      <strong>FlagWise</strong> <span className="bot-badge">APP</span>
+                    </div>
+                    <div className="bot-body">
+                      <div>Legal Query #1042 created.</div>
+                      <div>Project: AI Prototyping - Priority: High</div>
+                      <div>Status: Awaiting Legal review.</div>
+                      <div style={{ marginTop: 6, color: "var(--text-muted)" }}>I've sent the relevant project context to Legal.</div>
+                    </div>
+                    <button className="btn-view-status" onClick={() => { setShowRaiseQueriesDrawer(false); openFlag("flag-1042"); }}>
+                      View status
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {threadState === 2 && (
+                <div className="slack-thread-card">
+                  <div className="channel-header">Jira Ticket #LEG-104 · Design Team</div>
+                  <div className="slack-user-msg">
+                    <span className="author-avatar avatar-dp">DP</span>
+                    <div>
+                      <div className="slack-author-line"><strong>Daniel Park</strong> <span className="text-muted">Yesterday</span></div>
+                      <div className="slack-text">
+                        Logged Jira ticket for data category clarification on purchase-history input fields.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flagwise-bot-card">
+                    <div className="bot-header">
+                      <span className="bot-icon">✨</span>
+                      <strong>FlagWise</strong> <span className="bot-badge">JIRA BOT</span>
+                    </div>
+                    <div className="bot-body">
+                      <div>Legal Query #1066 created.</div>
+                      <div>Project: AI Assistant - Priority: Medium</div>
+                      <div>Status: Needs Information.</div>
+                    </div>
+                    <button className="btn-view-status" onClick={() => { setShowRaiseQueriesDrawer(false); openFlag("flag-1066"); }}>
+                      View status
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {threadState === 3 && (
+                <div className="slack-thread-card">
+                  <div className="channel-header">Email Inbox · legal-queries@company.com</div>
+                  <div className="slack-user-msg">
+                    <span className="author-avatar avatar-jl">JL</span>
+                    <div>
+                      <div className="slack-author-line"><strong>Jordan Lee</strong> <span className="text-muted">5 Oct</span></div>
+                      <div className="slack-text">
+                        Sent email regarding default-on AI image feature setting for next month's launch.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flagwise-bot-card">
+                    <div className="bot-header">
+                      <span className="bot-icon">✨</span>
+                      <strong>FlagWise</strong> <span className="bot-badge">INBOX SYNC</span>
+                    </div>
+                    <div className="bot-body">
+                      <div>Legal Query #1054 created.</div>
+                      <div>Project: Image and Video - Priority: Medium</div>
+                      <div>Status: Under Legal review.</div>
+                    </div>
+                    <button className="btn-view-status" onClick={() => { setShowRaiseQueriesDrawer(false); openFlag("flag-1054"); }}>
+                      View status
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="drawer-footer">
+              <button
+                className="btn-modal-secondary"
+                disabled={threadState === 1}
+                onClick={() => setThreadState((prev) => Math.max(1, prev - 1))}
+              >
+                Previous
+              </button>
+              <span className="text-muted" style={{ fontSize: 13 }}>Thread state {threadState} of 3</span>
+              <button
+                className="btn-modal-primary"
+                disabled={threadState === 3}
+                onClick={() => setThreadState((prev) => Math.min(3, prev + 1))}
+              >
+                Next state
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* OVERLAY 2: Log a Query Modal Form */}
+      {showLogQueryModal && (
+        <div className="modal-backdrop" onClick={() => setShowLogQueryModal(false)}>
+          <div className="modal-container" style={{ maxWidth: 540 }} onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <div>
+                <div className="card-overline-text">FLAGWISE</div>
+                <h2 className="modal-title">Log a query</h2>
+                <div className="modal-sub">
+                  Log a query Legal received outside FlagWise, such as in a meeting, call or email.
+                </div>
+              </div>
+              <button className="modal-close-btn" onClick={() => setShowLogQueryModal(false)}>✕</button>
+            </div>
+
+            <div className="modal-body" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div>
+                <label className="form-label">Project</label>
+                <select
+                  className="filter-select"
+                  style={{ width: "100%", height: 38 }}
+                  value={logForm.project}
+                  onChange={(e) => setLogForm({ ...logForm, project: e.target.value })}
+                >
+                  <option value="">Select a project</option>
+                  <option value="AI Prototyping">AI Prototyping</option>
+                  <option value="AI Assistant">AI Assistant</option>
+                  <option value="Website Publishing">Website Publishing</option>
+                  <option value="Brand Assets">Brand Assets</option>
+                  <option value="Image and Video">Image and Video</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="form-label">Question</label>
+                <textarea
+                  className="form-textarea"
+                  rows={3}
+                  placeholder="What does Legal need to consider?"
+                  value={logForm.question}
+                  onChange={(e) => setLogForm({ ...logForm, question: e.target.value })}
+                />
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <div>
+                  <label className="form-label">Department</label>
+                  <select
+                    className="filter-select"
+                    style={{ width: "100%", height: 38 }}
+                    value={logForm.dept}
+                    onChange={(e) => setLogForm({ ...logForm, dept: e.target.value })}
+                  >
+                    <option value="">Select department</option>
+                    <option value="Product">Product</option>
+                    <option value="Design">Design</option>
+                    <option value="Engineering">Engineering</option>
+                    <option value="Marketing">Marketing</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="form-label">Urgency</label>
+                  <select
+                    className="filter-select"
+                    style={{ width: "100%", height: 38 }}
+                    value={logForm.urgency}
+                    onChange={(e) => setLogForm({ ...logForm, urgency: e.target.value })}
+                  >
+                    <option value="">Select urgency</option>
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="form-label">Where it came from</label>
+                <input
+                  className="filter-search-input"
+                  style={{ width: "100%" }}
+                  placeholder="Meeting, call, email..."
+                  value={logForm.source}
+                  onChange={(e) => setLogForm({ ...logForm, source: e.target.value })}
+                />
+              </div>
+
+              <div>
+                <label className="form-label">Attachments</label>
+                <input
+                  className="filter-search-input"
+                  style={{ width: "100%" }}
+                  placeholder="Add links or files"
+                  value={logForm.attachments}
+                  onChange={(e) => setLogForm({ ...logForm, attachments: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button className="btn-modal-secondary" onClick={() => setShowLogQueryModal(false)}>
+                Cancel
+              </button>
+              <button className="btn-modal-primary" onClick={handleLogQuerySubmit}>
+                Log query
+              </button>
             </div>
           </div>
         </div>
