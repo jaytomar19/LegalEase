@@ -1,5 +1,5 @@
 import { getTrackingBadgeCount, useStore } from "../state/store";
-import { IconGrid, IconLayers, IconTicket, IconGear } from "./icons";
+import { IconGrid, IconLayers, IconTicket, IconRadar } from "./icons";
 
 export function Sidebar() {
   const { state, dispatch } = useStore();
@@ -11,75 +11,99 @@ export function Sidebar() {
   const isHome = effectiveName === "home";
   const isProjects = effectiveName === "projects" || effectiveName === "project" || effectiveName === "decision-sent";
   const isTickets = effectiveName === "tickets";
-  const isSettings = effectiveName === "settings";
+  const isTracking = state.filters.groupBy === "ai-tracking";
 
-  const awaitingCount = state.flags.filter((f) => f.status === "awaiting-review").length || 6;
+  const awaitingCount = state.flags.filter((f) => f.status === "awaiting-review").length;
+  const activeProject = state.screen.projectId
+    ? state.projects.find((p) => p.id === state.screen.projectId)
+    : state.projects[0];
 
   function goHome() {
     dispatch({ type: "SET_GROUP_BY", groupBy: null });
     dispatch({ type: "NAVIGATE", screen: { name: "home" } });
   }
 
-  return (
-    <div className="app-sidebar">
-      <div className="app-sidebar-brand">
-        <span className="app-header-brand-mark">✦</span>
-        <span className="app-brand-name">FlagWise</span>
-      </div>
+  function goTracking() {
+    dispatch({ type: "NAVIGATE", screen: { name: "home" } });
+    dispatch({ type: "SET_GROUP_BY", groupBy: "ai-tracking" });
+  }
 
-      <div className="app-sidebar-nav">
-        <button className={`app-sidebar-nav-item ${isHome ? "active" : ""}`} onClick={goHome}>
-          <IconGrid />
-          <span>Home</span>
+  return (
+    <aside className="sidebar">
+      <div className="sidebar-section-label">WORKSPACE</div>
+      
+      <nav className="sidebar-nav">
+        <button className={`sidebar-link ${isHome && !isTracking ? "active" : ""}`} onClick={goHome}>
+          <span className="sidebar-link-icon"><IconGrid size={15} /></span>
+          Overview
         </button>
         <button
-          className={`app-sidebar-nav-item ${isProjects ? "active" : ""}`}
+          className={`sidebar-link ${isProjects ? "active" : ""}`}
           onClick={() => dispatch({ type: "NAVIGATE", screen: { name: "projects" } })}
         >
-          <IconLayers />
-          <span>Projects</span>
+          <span className="sidebar-link-icon"><IconLayers size={15} /></span>
+          Projects
         </button>
         <button
-          className={`app-sidebar-nav-item ${isTickets ? "active" : ""}`}
+          className={`sidebar-link ${isTickets ? "active" : ""}`}
           onClick={() => dispatch({ type: "NAVIGATE", screen: { name: "tickets" } })}
         >
-          <IconTicket />
-          <span>Tickets</span>
-          <span className="nav-count">{awaitingCount}</span>
+          <span className="sidebar-link-icon"><IconTicket size={15} /></span>
+          Tickets
+          {awaitingCount > 0 && <span className="count">{awaitingCount}</span>}
         </button>
         <button
-          className={`app-sidebar-nav-item ${isSettings ? "active" : ""}`}
-          onClick={() => dispatch({ type: "NAVIGATE", screen: { name: "settings" } })}
+          className={`sidebar-link ${isTracking ? "active" : ""}`}
+          onClick={goTracking}
         >
-          <IconGear />
-          <span>Settings</span>
+          <span className="sidebar-link-icon"><IconRadar size={15} /></span>
+          AI Tracking
+          {trackingBadge > 0 && <span className="count">{trackingBadge}</span>}
         </button>
-      </div>
+      </nav>
 
-      <div className="app-sidebar-spacer" />
+      <hr className="sidebar-divider" />
 
-      <div className="app-sidebar-status-card">
-        <div className="flex-row gap-6">
-          <span className="app-sidebar-status-dot" />
-          <span className="app-sidebar-status-title">AI monitoring ON</span>
+      {activeProject && (
+        <div className="sidebar-project-block">
+          <div className="sidebar-section-label">CURRENT PROJECT</div>
+          <div
+            className="sidebar-project-card"
+            onClick={() =>
+              dispatch({
+                type: "NAVIGATE",
+                screen: { name: "project", projectId: activeProject.id, projectTab: "ai-brief" },
+              })
+            }
+          >
+            <div className="sidebar-project-badge">{activeProject.id}</div>
+            <div className="sidebar-project-info">
+              <div className="sidebar-project-name">{activeProject.name}</div>
+              <div className="sidebar-project-sub">{activeProject.defaultTeam}</div>
+            </div>
+          </div>
         </div>
-        <div className="app-sidebar-status-sub">
+      )}
+
+      <div className="sidebar-spacer" />
+
+      <div className="sidebar-status-card">
+        <div className="sidebar-status-header">
+          <span className="sidebar-status-dot" />
+          <span className="sidebar-status-title">AI monitoring ON</span>
+        </div>
+        <div className="sidebar-status-sub">
           {trackingBadge > 0
-            ? `${trackingBadge} possible change${trackingBadge === 1 ? "" : "s"} spotted, not yet submitted`
+            ? `${trackingBadge} possible change${trackingBadge === 1 ? "" : "s"} spotted`
             : "Monitoring approved project sources"}
         </div>
       </div>
 
-      <div className="user-chip">
-        <div className="flex-row gap-10">
-          <span className="user-chip-avatar">M</span>
-          <span className="user-chip-text">
-            <span className="user-chip-name">magfi</span>
-            <span className="user-chip-role">Legal Counsel</span>
-          </span>
-        </div>
-        <span className="user-chip-chevron">∨</span>
+      <div className="sidebar-footer-row">
+        <button className="reset-demo-btn" onClick={() => dispatch({ type: "RESET" })}>
+          ↻ Reset demo
+        </button>
       </div>
-    </div>
+    </aside>
   );
 }
