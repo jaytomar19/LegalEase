@@ -79,6 +79,18 @@ export function Sidebar() {
 
       <div className="app-sidebar-divider" />
 
+      <div className="app-sidebar-status-card">
+        <div>
+          <span className="app-sidebar-status-dot" />
+          <span className="app-sidebar-status-title">AI monitoring ON</span>
+        </div>
+        <div className="app-sidebar-status-sub">
+          {trackingBadge > 0
+            ? `${trackingBadge} possible change${trackingBadge === 1 ? "" : "s"} spotted, not yet submitted`
+            : "Watching approved project sources"}
+        </div>
+      </div>
+
       <div className="user-chip" style={{ width: "100%" }}>
         <span className="user-chip-avatar">MG</span>
         <span className="user-chip-text">

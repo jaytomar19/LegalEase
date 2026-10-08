@@ -35,16 +35,30 @@
   --shadow-panel: -12px 0 32px rgba(16, 24, 40, 0.12);
   --shadow-dropdown: 0 4px 16px rgba(16, 24, 40, 0.12), 0 1px 3px rgba(16, 24, 40, 0.08);
 
-  /* ---- Application shell: light neutral canvas ---- */
-  --outer-bg-1: #eef0f3;
-  --outer-bg-2: #e9ebef;
-  --outer-bg-3: #e5e8ec;
+  /* ---- Application shell: warm cream canvas (Figma reference) ---- */
+  --outer-bg-1: #faf6f2;
+  --outer-bg-2: #f7f1ec;
+  --outer-bg-3: #f4ece5;
   --workspace-bg: #ffffff;
-  --workspace-border: #e3e6eb;
+  --workspace-border: #ece4dd;
   --workspace-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 12px 28px -12px rgba(16, 24, 40, 0.1);
-  --workspace-radius: 16px;
-  --card-radius: 12px;
-  --control-radius: 8px;
+  --workspace-radius: 20px;
+  --card-radius: 14px;
+  --control-radius: 10px;
+
+  /* ---- Solid KPI tile colors, mapped to Checkpoint's own status semantics ---- */
+  --kpi-urgent-bg: #f6cdd6;
+  --kpi-urgent-text: #5c1626;
+  --kpi-urgent-icon: #ffffff;
+  --kpi-later-bg: #f3dd9b;
+  --kpi-later-text: #4a3a05;
+  --kpi-later-icon: #ffffff;
+  --kpi-resolved-bg: #bcdcee;
+  --kpi-resolved-text: #0d3a52;
+  --kpi-resolved-icon: #ffffff;
+  --kpi-tracking-bg: #d9cdf0;
+  --kpi-tracking-text: #311f5c;
+  --kpi-tracking-icon: #ffffff;
 
   --panel-tint-bg: #f5f6f8;
   --panel-tint-border: #e3e6eb;
@@ -148,25 +162,25 @@ a:hover {
 }
 
 .app-sidebar {
-  width: 188px;
+  width: 248px;
   flex-shrink: 0;
   border-right: 1px solid var(--border);
   background: var(--surface);
   display: flex;
   flex-direction: column;
-  padding: 18px 12px;
+  padding: 20px 16px;
 }
 
 .app-sidebar-brand {
   display: flex;
   align-items: center;
-  gap: 9px;
-  font-size: 15px;
+  gap: 10px;
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--text);
   padding: 0 8px;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .app-header-brand-mark {
@@ -202,12 +216,12 @@ a:hover {
 .app-sidebar-nav-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 11px;
   background: none;
   border: none;
-  padding: 8px;
-  border-radius: var(--control-radius);
-  font-size: 13px;
+  padding: 10px 10px;
+  border-radius: 999px;
+  font-size: 14px;
   font-weight: 500;
   color: var(--text-secondary);
   text-align: left;
@@ -243,6 +257,34 @@ a:hover {
   border-top: 1px solid var(--border);
   margin: 12px 4px;
   height: 0;
+}
+
+.app-sidebar-status-card {
+  background: var(--bg);
+  border-radius: var(--card-radius);
+  padding: 12px;
+  margin: 0 2px 12px;
+}
+
+.app-sidebar-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--resolved);
+  display: inline-block;
+  margin-right: 6px;
+}
+
+.app-sidebar-status-title {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.app-sidebar-status-sub {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 4px;
+  line-height: 1.4;
 }
 
 .app-main-column {
@@ -1460,69 +1502,384 @@ a:hover {
   margin: 0 auto 14px;
 }
 
-/* ---------------- Bold stat tiles (Overview) ---------------- */
+/* ---------------- KPI tiles (Overview) ---------------- */
 
 .stat-tile-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   margin-bottom: 28px;
-  flex-wrap: wrap;
+}
+
+@media (max-width: 1100px) {
+  .stat-tile-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .stat-tile {
-  flex: 1;
-  min-width: 180px;
   border-radius: var(--card-radius);
-  padding: 16px 18px;
+  padding: 18px 20px;
   position: relative;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-left: 3px solid var(--border-strong);
+}
+
+.stat-tile-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.stat-tile-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.stat-tile-chevron {
+  opacity: 0.55;
 }
 
 .stat-tile-label {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-tertiary);
-  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 10px;
 }
 
 .stat-tile-value {
-  font-size: 28px;
+  font-size: 30px;
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1;
-  color: var(--text);
 }
 
 .stat-tile-sub {
   font-size: 12px;
   font-weight: 500;
-  color: var(--text-tertiary);
   margin-top: 6px;
+  opacity: 0.75;
 }
 
 .stat-tile.urgent {
-  border-left-color: var(--tile-urgent-accent);
+  background: var(--kpi-urgent-bg);
+  color: var(--kpi-urgent-text);
 }
-.stat-tile.urgent .stat-tile-value {
-  color: var(--urgent-text);
-}
-
 .stat-tile.later {
-  border-left-color: var(--tile-later-accent);
+  background: var(--kpi-later-bg);
+  color: var(--kpi-later-text);
 }
-.stat-tile.later .stat-tile-value {
-  color: var(--later-text);
+.stat-tile.resolved {
+  background: var(--kpi-resolved-bg);
+  color: var(--kpi-resolved-text);
+}
+.stat-tile.tracking {
+  background: var(--kpi-tracking-bg);
+  color: var(--kpi-tracking-text);
 }
 
-.stat-tile.resolved {
-  border-left-color: var(--tile-resolved-accent);
+/* ---------------- Home summary: attention list + recent changes ---------------- */
+
+.home-summary-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 28px;
 }
-.stat-tile.resolved .stat-tile-value {
-  color: var(--resolved-text);
+
+@media (max-width: 1000px) {
+  .home-summary-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.summary-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--card-radius);
+  padding: 18px 20px;
+}
+
+.summary-block-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.summary-block-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.attention-row,
+.recent-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.attention-row:last-child,
+.recent-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.attention-row-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+}
+
+.attention-row-body,
+.recent-row-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.attention-row-title,
+.recent-row-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.attention-row-sub,
+.recent-row-sub {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.recent-row-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--selected-fill);
+  color: var(--selected-text);
+  flex-shrink: 0;
+  font-size: 13px;
+}
+
+/* ---------------- Numbered sections (Flag Detail) ---------------- */
+
+.numbered-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--card-radius);
+  padding: 18px 20px;
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.numbered-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.numbered-section-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.numbered-section-index {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--border-strong);
+}
+
+.before-after-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.before-after-box {
+  border-radius: var(--control-radius);
+  padding: 12px 14px;
+  font-size: 13px;
+  background: var(--bg);
+}
+
+.before-after-box.after {
+  background: var(--selected-fill);
+}
+
+.before-after-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+  margin-bottom: 6px;
+}
+
+/* ---------------- AI suggestion card + counsel actions ---------------- */
+
+.ai-suggestion-card {
+  background: linear-gradient(160deg, var(--kpi-urgent-bg) 0%, var(--kpi-later-bg) 100%);
+  border-radius: var(--card-radius);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.ai-suggestion-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.ai-suggestion-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.ai-suggestion-text {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.ai-suggestion-reason {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.counsel-action-row {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--control-radius);
+  padding: 12px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.counsel-action-row:hover {
+  background: var(--bg);
+  border-color: var(--border-strong);
+}
+
+.counsel-action-row.selected {
+  background: var(--selected-fill);
+  border-color: var(--primary);
+  color: var(--selected-text);
+}
+
+/* ---------------- Ticket cards ---------------- */
+
+.ticket-col-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.ticket-col-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ticket-col-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.ticket-col-sub {
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+.ticket-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--card-radius);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+
+.ticket-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.ticket-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.ticket-card-sub {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-bottom: 10px;
+}
+
+.ticket-card-tags {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.ticket-card-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 0 0 10px;
+}
+
+.ticket-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ticket-card-affects {
+  background: var(--bg);
+  color: var(--text-tertiary);
+  font-size: 11px;
+  padding: 5px 9px;
+  border-radius: 6px;
+  margin-top: 10px;
 }
 
 /* ---------------- Submit screen two-column ---------------- */
