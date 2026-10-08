@@ -34,6 +34,8 @@ function SubmittingTransition() {
 
 function renderMagfiScreen(screen: ScreenState): ReactNode {
   switch (screen.name) {
+    case "flag":
+      return <Screen3FlagDetail />;
     case "project":
       return <Screen2Project key={screen.projectId} screen={screen} />;
     case "tickets":
@@ -58,15 +60,7 @@ export default function App() {
   if (screen === "submitting") return <SubmittingTransition />;
   if (screen === "team-response") return <Screen5TeamResponse />;
 
-  // While the Flag Detail panel is open, the background behind it is whatever
-  // screen the panel was opened from (its "returnTo"), not always Home.
-  const backgroundScreen: ScreenState =
-    screen === "flag" ? state.screen.returnTo ?? { name: "home" } : state.screen;
-
   return (
-    <>
-      <AppShell>{renderMagfiScreen(backgroundScreen)}</AppShell>
-      {screen === "flag" && <Screen3FlagDetail />}
-    </>
+    <AppShell>{renderMagfiScreen(state.screen)}</AppShell>
   );
 }

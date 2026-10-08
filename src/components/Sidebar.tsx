@@ -13,7 +13,7 @@ export function Sidebar() {
   const isTickets = effectiveName === "tickets";
   const isSettings = effectiveName === "settings";
 
-  const awaitingCount = state.flags.filter((f) => f.status === "awaiting-review").length || 6;
+  const awaitingCount = 2;
 
   function goHome() {
     dispatch({ type: "SET_GROUP_BY", groupBy: null });

@@ -54,15 +54,15 @@ export function Screen6Tickets() {
         </select>
       </div>
 
-      {/* 4 Column Kanban Grid */}
+      {/* 4 Column Kanban Grid (2 Cards per column) */}
       <div className="kanban-grid">
-        {/* Column 1: Awaiting your review */}
+        {/* Column 1: Awaiting your review (2) */}
         <div className="kanban-column">
           <div className="kanban-col-header">
             <span className="kanban-col-icon icon-pink-box">📥</span>
             <div>
               <div className="kanban-col-title">
-                Awaiting your review <span className="kanban-col-count">6</span>
+                Awaiting your review <span className="kanban-col-count">2</span>
               </div>
               <div className="kanban-col-sub">Ready for Legal consideration</div>
             </div>
@@ -111,13 +111,13 @@ export function Screen6Tickets() {
           </div>
         </div>
 
-        {/* Column 2: Under review */}
+        {/* Column 2: Under review (2) */}
         <div className="kanban-column">
           <div className="kanban-col-header">
             <span className="kanban-col-icon icon-blue-box">⏱</span>
             <div>
               <div className="kanban-col-title">
-                Under review <span className="kanban-col-count">4</span>
+                Under review <span className="kanban-col-count">2</span>
               </div>
               <div className="kanban-col-sub">Counsel is reviewing</div>
             </div>
@@ -133,8 +133,8 @@ export function Screen6Tickets() {
               <div className="kanban-card-title">Default-on AI image feature</div>
               <div className="kanban-card-sub">Lumen Weave · Design</div>
               <div className="kanban-card-tags">
-                <span className="tag-pill">Vendor</span>
-                <span className="tag-pill">Contract</span>
+                <span className="tag-pill">Default setting</span>
+                <span className="tag-pill">Consumer</span>
               </div>
               <hr className="kanban-card-divider" />
               <div className="kanban-card-author">
@@ -166,13 +166,13 @@ export function Screen6Tickets() {
           </div>
         </div>
 
-        {/* Column 3: Needs information */}
+        {/* Column 3: Needs information (2) */}
         <div className="kanban-column">
           <div className="kanban-col-header">
             <span className="kanban-col-icon icon-yellow-box">ⓘ</span>
             <div>
               <div className="kanban-col-title">
-                Needs information <span className="kanban-col-count">7</span>
+                Needs information <span className="kanban-col-count">2</span>
               </div>
               <div className="kanban-col-sub">Waiting for project context</div>
             </div>
@@ -188,8 +188,8 @@ export function Screen6Tickets() {
               <div className="kanban-card-title">Clarification on purchase-history input</div>
               <div className="kanban-card-sub">Lumen Assist · Product</div>
               <div className="kanban-card-tags">
-                <span className="tag-pill">Vendor</span>
-                <span className="tag-pill">Contract</span>
+                <span className="tag-pill">Data category</span>
+                <span className="tag-pill">Privacy</span>
               </div>
 
               {/* Special Highlight callout */}
@@ -231,13 +231,13 @@ export function Screen6Tickets() {
           </div>
         </div>
 
-        {/* Column 4: Sent back to team */}
+        {/* Column 4: Sent back to team (2) */}
         <div className="kanban-column">
           <div className="kanban-col-header">
             <span className="kanban-col-icon icon-green-box">›</span>
             <div>
               <div className="kanban-col-title">
-                Sent back to team <span className="kanban-col-count">3</span>
+                Sent back to team <span className="kanban-col-count">2</span>
               </div>
               <div className="kanban-col-sub">Changes requested</div>
             </div>
