@@ -92,8 +92,8 @@ export function Screen0Submit() {
   return (
     <div className="app-outer">
       <div className="app-workspace">
-        <div className="app-header">
-          <div className="app-header-brand">
+        <div className="team-topbar">
+          <div className="team-brand flex-row gap-8">
             <span className="app-header-brand-mark">C</span>
             Checkpoint
           </div>
