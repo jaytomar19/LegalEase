@@ -1,10 +1,13 @@
+import { useState } from "react";
 import { useStore } from "../state/store";
 import type { ScreenState } from "../types";
+import { DocumentModal, type DocumentModalData } from "../components/DocumentModal";
 
 export function Screen2Project({ screen }: { screen: Pick<ScreenState, "projectId" | "projectTab"> }) {
   const { state, dispatch } = useStore();
   const projectId = screen.projectId ?? "C";
   const project = state.projects.find((p) => p.id === projectId) ?? state.projects[0];
+  const [activeDoc, setActiveDoc] = useState<DocumentModalData | null>(null);
 
   // Tab state: default to legal-review
   const tab = screen.projectTab ?? "legal-review";
@@ -13,19 +16,46 @@ export function Screen2Project({ screen }: { screen: Pick<ScreenState, "projectI
     dispatch({ type: "NAVIGATE", screen: { ...state.screen, projectTab: t } });
   }
 
-  // Map names for precise alignment with user reference screenshots
+  // Clean Project Titles
   let projectName = project.name;
-  if (projectId === "C" || project.name === "AI Prototyping") projectName = "Lumen Compose";
-  else if (projectId === "A" || project.name === "AI Assistant") projectName = "Lumen Assist";
-  else if (projectId === "S" || project.name === "Website Publishing") projectName = "Lumen Sites";
-  else if (projectId === "B" || project.name === "Brand Assets") projectName = "Lumen Brand";
-  else if (projectId === "W" || project.name === "Image and Video") projectName = "Lumen Weave";
+  if (projectId === "C" || project.name === "AI Prototyping" || project.name === "Lumen Compose") projectName = "AI Prototyping";
+  else if (projectId === "A" || project.name === "AI Assistant" || project.name === "Lumen Assist") projectName = "AI Assistant";
+  else if (projectId === "S" || project.name === "Website Publishing" || project.name === "Lumen Sites") projectName = "Website Publishing";
+  else if (projectId === "B" || project.name === "Brand Assets" || project.name === "Lumen Brand") projectName = "Brand Assets";
+  else if (projectId === "W" || project.name === "Image and Video" || project.name === "Lumen Weave") projectName = "Image and Video";
 
-  const projectInitial = (projectName === "Lumen Compose" || projectId === "C" || project.name === "AI Prototyping") ? "C" : projectName.charAt(0);
+  const projectInitial = projectName.charAt(0) || "A";
   const projectDesc = project.subtitle || "AI prototyping and code generation.";
+
+  function openDocument(title: string, date?: string, status?: string) {
+    setActiveDoc({
+      title,
+      date: date || "2026",
+      status: status || "Approved Baseline",
+      type: "Legal Document",
+      summary: `Official project document (${title}) setting baseline conditions and legal requirements for ${projectName}.`,
+      sections: [
+        {
+          title: "1. Executive Summary & Purpose",
+          content: `This document records the reviewed legal parameters, approved boundaries, and vendor arrangements for ${projectName}.`,
+        },
+        {
+          title: "2. Approved Technical Specifications",
+          content: "Vendor provider set to Vendor A. All model invocations pass through enterprise encryption with strict non-training clauses.",
+        },
+        {
+          title: "3. Compliance & Data Governance",
+          content: "Data retention is enforced at 30 days maximum. Jurisdiction is strictly limited to authorized US & EU data centers.",
+        },
+      ],
+    });
+  }
 
   return (
     <div className="project-detail-screen">
+      {/* Modal for viewing documents */}
+      <DocumentModal doc={activeDoc} onClose={() => setActiveDoc(null)} />
+
       {/* Breadcrumb */}
       <div className="project-breadcrumb-row">
         <button
@@ -110,14 +140,16 @@ export function Screen2Project({ screen }: { screen: Pick<ScreenState, "projectI
                   What Legal previously reviewed and approved, including the facts, assumptions and conditions supporting the decision.
                 </div>
               </div>
-              <button className="btn-view-memo-outline">📄 View Legal memo</button>
+              <button className="btn-view-memo-outline" onClick={() => openDocument("Legal review memo", "24 Sep 2026", "Approved Baseline")}>
+                📄 View Legal memo
+              </button>
             </div>
 
             <div className="green-baseline-status-bar">
               <span className="pill-approved-baseline">
                 ✓ Approved: Baseline v1, 24 Sep 2026
               </span>
-              <a href="#" className="baseline-history-link" onClick={(e) => e.preventDefault()}>
+              <a href="#" className="baseline-history-link" onClick={(e) => { e.preventDefault(); openDocument("Baseline History v1", "24 Sep 2026"); }}>
                 Baseline history &gt;
               </a>
             </div>
@@ -130,12 +162,16 @@ export function Screen2Project({ screen }: { screen: Pick<ScreenState, "projectI
                   <tr>
                     <td className="fact-col-label">AI model/provider</td>
                     <td className="fact-col-val">Vendor A</td>
-                    <td className="fact-col-source"><a href="#" onClick={(e) => e.preventDefault()}>📄 Source</a></td>
+                    <td className="fact-col-source">
+                      <a href="#" onClick={(e) => { e.preventDefault(); openDocument("Vendor A DPA", "18 Sep 2026"); }}>📄 Source</a>
+                    </td>
                   </tr>
                   <tr>
                     <td className="fact-col-label">Data types</td>
                     <td className="fact-col-val">User prompts, designs, files, metadata</td>
-                    <td className="fact-col-source"><a href="#" onClick={(e) => e.preventDefault()}>📄 Source</a></td>
+                    <td className="fact-col-source">
+                      <a href="#" onClick={(e) => { e.preventDefault(); openDocument("PRD v3.1 Data Specification", "15 Sep 2026"); }}>📄 Source</a>
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -173,11 +209,11 @@ export function Screen2Project({ screen }: { screen: Pick<ScreenState, "projectI
             <div className="card-section-block">
               <div className="section-block-label" style={{ marginBottom: 8 }}>Sources</div>
               <div className="sources-chips-row">
-                <span className="source-chip-btn">📄 Legal review memo · 24 Sep 2026</span>
-                <span className="source-chip-btn">📄 PRD v3.1</span>
-                <span className="source-chip-btn">📄 Vendor A DPA</span>
-                <span className="source-chip-btn">📄 Security assessment</span>
-                <span className="source-chip-btn">📄 Privacy assessment</span>
+                <span className="source-chip-btn" style={{ cursor: "pointer" }} onClick={() => openDocument("Legal review memo", "24 Sep 2026")}>📄 Legal review memo · 24 Sep 2026</span>
+                <span className="source-chip-btn" style={{ cursor: "pointer" }} onClick={() => openDocument("PRD v3.1", "15 Sep 2026")}>📄 PRD v3.1</span>
+                <span className="source-chip-btn" style={{ cursor: "pointer" }} onClick={() => openDocument("Vendor A DPA", "18 Sep 2026")}>📄 Vendor A DPA</span>
+                <span className="source-chip-btn" style={{ cursor: "pointer" }} onClick={() => openDocument("Security assessment", "20 Sep 2026")}>📄 Security assessment</span>
+                <span className="source-chip-btn" style={{ cursor: "pointer" }} onClick={() => openDocument("Privacy assessment", "22 Sep 2026")}>📄 Privacy assessment</span>
               </div>
             </div>
           </div>
@@ -324,7 +360,7 @@ export function Screen2Project({ screen }: { screen: Pick<ScreenState, "projectI
           </div>
 
           <div className="documents-row-list">
-            <div className="doc-list-item">
+            <div className="doc-list-item" style={{ cursor: "pointer" }} onClick={() => openDocument("PRD v4.2 - Updated 8 Oct", "8 Oct 2026", "Updated PRD")}>
               <div className="doc-item-main">
                 <span className="doc-file-icon">📄</span>
                 <span className="doc-title-text">PRD v4.2 - Updated 8 Oct</span>
@@ -332,7 +368,7 @@ export function Screen2Project({ screen }: { screen: Pick<ScreenState, "projectI
               <span className="doc-chevron-icon">&gt;</span>
             </div>
 
-            <div className="doc-list-item">
+            <div className="doc-list-item" style={{ cursor: "pointer" }} onClick={() => openDocument("Legal review memo · 24 Sep 2026", "24 Sep 2026", "Legal Memo")}>
               <div className="doc-item-main">
                 <span className="doc-file-icon">📄</span>
                 <span className="doc-title-text">Legal review memo · 24 Sep 2026</span>
@@ -340,7 +376,7 @@ export function Screen2Project({ screen }: { screen: Pick<ScreenState, "projectI
               <span className="doc-chevron-icon">&gt;</span>
             </div>
 
-            <div className="doc-list-item">
+            <div className="doc-list-item" style={{ cursor: "pointer" }} onClick={() => openDocument("Vendor A DPA · 18 Sep 2026", "18 Sep 2026", "Approved DPA")}>
               <div className="doc-item-main">
                 <span className="doc-file-icon">📄</span>
                 <span className="doc-title-text">Vendor A DPA · 18 Sep 2026</span>
@@ -348,7 +384,7 @@ export function Screen2Project({ screen }: { screen: Pick<ScreenState, "projectI
               <span className="doc-chevron-icon">&gt;</span>
             </div>
 
-            <div className="doc-list-item">
+            <div className="doc-list-item" style={{ cursor: "pointer" }} onClick={() => openDocument("Security assessment · 20 Sep 2026", "20 Sep 2026", "Security Review")}>
               <div className="doc-item-main">
                 <span className="doc-file-icon">📄</span>
                 <span className="doc-title-text">Security assessment · 20 Sep 2026</span>
@@ -368,7 +404,7 @@ export function Screen2Project({ screen }: { screen: Pick<ScreenState, "projectI
           </div>
 
           <div className="documents-row-list">
-            <div className="doc-list-item">
+            <div className="doc-list-item" style={{ cursor: "pointer" }} onClick={() => openDocument("Baseline v1 approved · 24 Sep 2026", "24 Sep 2026", "Approved")}>
               <div className="doc-item-main">
                 <span className="doc-file-icon">📄</span>
                 <span className="doc-title-text">Baseline v1 approved · 24 Sep 2026</span>
@@ -376,7 +412,7 @@ export function Screen2Project({ screen }: { screen: Pick<ScreenState, "projectI
               <span className="doc-chevron-icon">&gt;</span>
             </div>
 
-            <div className="doc-list-item">
+            <div className="doc-list-item" style={{ cursor: "pointer" }} onClick={() => openDocument("Project monitoring started · 20 Sep 2026", "20 Sep 2026", "Active Monitoring")}>
               <div className="doc-item-main">
                 <span className="doc-file-icon">📄</span>
                 <span className="doc-title-text">Project monitoring started · 20 Sep 2026</span>

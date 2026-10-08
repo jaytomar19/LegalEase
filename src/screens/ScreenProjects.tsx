@@ -10,7 +10,7 @@ export function ScreenProjects() {
 
   const projects = [
     {
-      id: "A1",
+      id: "C",
       initial: "A",
       name: "AI Prototyping",
       description: "AI prototyping and code generation.",
@@ -22,7 +22,7 @@ export function ScreenProjects() {
       avatarClass: "avatar-c",
     },
     {
-      id: "A2",
+      id: "A",
       initial: "A",
       name: "AI Assistant",
       description: "AI features across products.",
@@ -34,7 +34,7 @@ export function ScreenProjects() {
       avatarClass: "avatar-a",
     },
     {
-      id: "W",
+      id: "S",
       initial: "W",
       name: "Website Publishing",
       description: "Website publishing.",
@@ -58,7 +58,7 @@ export function ScreenProjects() {
       avatarClass: "avatar-b",
     },
     {
-      id: "I",
+      id: "W",
       initial: "I",
       name: "Image and Video",
       description: "Image and video generation.",
@@ -71,10 +71,49 @@ export function ScreenProjects() {
     },
   ];
 
-  const filteredProjects = projects.filter((p) => {
-    if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
-    return true;
-  });
+  const filteredProjects = projects
+    .filter((p) => {
+      // Search
+      if (
+        search &&
+        !p.name.toLowerCase().includes(search.toLowerCase()) &&
+        !p.description.toLowerCase().includes(search.toLowerCase())
+      ) {
+        return false;
+      }
+      // Department
+      if (dept !== "all") {
+        const ownerLower = p.owner.toLowerCase();
+        if (!ownerLower.includes(dept.toLowerCase())) return false;
+      }
+      // Legal status
+      if (status !== "all" && p.statusType !== status) {
+        return false;
+      }
+      return true;
+    })
+    .sort((a, b) => {
+      if (lastRev === "recent") {
+        return new Date(b.lastReview).getTime() - new Date(a.lastReview).getTime();
+      }
+      if (lastRev === "oldest") {
+        return new Date(a.lastReview).getTime() - new Date(b.lastReview).getTime();
+      }
+      if (lastRev === "name-asc") {
+        return a.name.localeCompare(b.name);
+      }
+      if (lastRev === "name-desc") {
+        return b.name.localeCompare(a.name);
+      }
+      return 0;
+    });
+
+  function resetFilters() {
+    setSearch("");
+    setDept("all");
+    setStatus("all");
+    setLastRev("all");
+  }
 
   return (
     <div className="projects-container">
@@ -97,65 +136,91 @@ export function ScreenProjects() {
           />
         </div>
         <select className="filter-select" value={dept} onChange={(e) => setDept(e.target.value)}>
-          <option value="all">Department</option>
+          <option value="all">Department (All)</option>
           <option value="product">Product</option>
           <option value="design">Design</option>
           <option value="engineering">Engineering</option>
+          <option value="marketing">Marketing</option>
         </select>
         <select className="filter-select" value={status} onChange={(e) => setStatus(e.target.value)}>
-          <option value="all">Legal status</option>
+          <option value="all">Legal status (All)</option>
           <option value="at-risk">At risk</option>
+          <option value="re-review">Under re-review</option>
           <option value="on-track">On track</option>
+          <option value="needs-attention">Needs attention</option>
         </select>
         <select className="filter-select" value={lastRev} onChange={(e) => setLastRev(e.target.value)}>
-          <option value="all">Last reviewed</option>
+          <option value="all">Sort by (Default)</option>
+          <option value="recent">Last reviewed: Recent first</option>
+          <option value="oldest">Last reviewed: Oldest first</option>
+          <option value="name-asc">Name: A to Z</option>
+          <option value="name-desc">Name: Z to A</option>
         </select>
+
+        {(search || dept !== "all" || status !== "all" || lastRev !== "all") && (
+          <button className="btn-ghost-link" style={{ marginLeft: 8 }} onClick={resetFilters}>
+            Reset filters
+          </button>
+        )}
       </div>
 
-      <div className="projects-grid">
-        {filteredProjects.map((p) => (
-          <div
-            key={p.id}
-            className="project-card"
-            onClick={() =>
-              dispatch({
-                type: "NAVIGATE",
-                screen: { name: "project", projectId: p.id, projectTab: "ai-brief" },
-              })
-            }
-          >
-            <div className="project-card-header">
-              <span className={`project-circle-avatar ${p.avatarClass}`}>{p.initial}</span>
-              <span className={`project-status-pill pill-${p.statusType}`}>
-                {p.statusType === "at-risk" && "⏱ "}
-                {p.statusType === "re-review" && "⏱ "}
-                {p.statusType === "on-track" && "✓ "}
-                {p.statusType === "needs-attention" && "ⓘ "}
-                {p.statusText}
-              </span>
-            </div>
-
-            <div className="project-card-title">{p.name}</div>
-            <div className="project-card-desc">{p.description}</div>
-
-            <div className="project-card-meta-grid">
-              <div className="meta-item">
-                <span className="meta-label">Owner</span>
-                <span className="meta-value">{p.owner}</span>
-              </div>
-              <div className="meta-item">
-                <span className="meta-label">Last Legal review</span>
-                <span className="meta-value">{p.lastReview}</span>
-              </div>
-            </div>
-
-            <div className="project-card-footer">
-              <span className="open-items-text">{p.openItems}</span>
-              <span className="open-project-link">Open project ›</span>
-            </div>
+      {filteredProjects.length === 0 ? (
+        <div className="empty-state-card" style={{ padding: 40, textAlign: "center" }}>
+          <div style={{ fontSize: 28, marginBottom: 8 }}>🔍</div>
+          <div style={{ fontWeight: 600, fontSize: 16, marginBottom: 4 }}>No matching projects</div>
+          <div className="text-muted" style={{ fontSize: 13, marginBottom: 16 }}>
+            No projects matched your active search or filter criteria.
           </div>
-        ))}
-      </div>
+          <button className="btn-primary-pill" onClick={resetFilters}>
+            Clear filters
+          </button>
+        </div>
+      ) : (
+        <div className="projects-grid">
+          {filteredProjects.map((p) => (
+            <div
+              key={p.id}
+              className="project-card"
+              onClick={() =>
+                dispatch({
+                  type: "NAVIGATE",
+                  screen: { name: "project", projectId: p.id, projectTab: "legal-review" },
+                })
+              }
+            >
+              <div className="project-card-header">
+                <span className={`project-circle-avatar ${p.avatarClass}`}>{p.initial}</span>
+                <span className={`project-status-pill pill-${p.statusType}`}>
+                  {p.statusType === "at-risk" && "⏱ "}
+                  {p.statusType === "re-review" && "⏱ "}
+                  {p.statusType === "on-track" && "✓ "}
+                  {p.statusType === "needs-attention" && "ⓘ "}
+                  {p.statusText}
+                </span>
+              </div>
+
+              <div className="project-card-title">{p.name}</div>
+              <div className="project-card-desc">{p.description}</div>
+
+              <div className="project-card-meta-grid">
+                <div className="meta-item">
+                  <span className="meta-label">Owner</span>
+                  <span className="meta-value">{p.owner}</span>
+                </div>
+                <div className="meta-item">
+                  <span className="meta-label">Last Legal review</span>
+                  <span className="meta-value">{p.lastReview}</span>
+                </div>
+              </div>
+
+              <div className="project-card-footer">
+                <span className="open-items-text">{p.openItems}</span>
+                <span className="open-project-link">Open project ›</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
