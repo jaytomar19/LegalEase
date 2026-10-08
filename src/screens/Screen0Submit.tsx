@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useStore } from "../state/store";
 import type { Team } from "../types";
 import { SAMPLE_DOCUMENTS } from "../data/seed";
-import { IconCheck } from "../components/icons";
+import { IconCheck, IconLayers, IconSwitch } from "../components/icons";
 
 const TEAMS: Team[] = ["Engineering", "Product management", "Design"];
 
@@ -89,42 +89,59 @@ export function Screen0Submit() {
 
   const canSubmit = !!fileName;
 
+  function switchToMagfi() {
+    dispatch({ type: "SET_ROLE", role: "magfi" });
+    dispatch({ type: "NAVIGATE", screen: { name: "home" } });
+  }
+
   return (
     <div className="app-outer">
       <div className="app-workspace">
-        <div className="team-topbar">
-          <div className="team-brand flex-row gap-8">
+        <div className="app-sidebar">
+          <div className="app-sidebar-brand">
             <span className="app-header-brand-mark">L</span>
             LegalEase
           </div>
 
-          <div className="text-secondary" style={{ fontSize: 13 }}>
-            Project <strong style={{ color: "var(--text)" }}>{project?.name ?? "—"}</strong>
+          <div className="app-sidebar-section-label">Menu</div>
+          <div className="app-sidebar-nav">
+            <button className="app-sidebar-nav-item active">
+              <IconLayers />
+              Submit a change
+            </button>
           </div>
 
-          <div className="flex-row gap-12">
-            <button
-              className="link-btn"
-              onClick={() => {
-                dispatch({ type: "SET_ROLE", role: "magfi" });
-                dispatch({ type: "NAVIGATE", screen: { name: "home" } });
-              }}
-            >
+          <div className="app-sidebar-spacer" />
+
+          <div className="app-sidebar-divider" />
+          <div className="app-sidebar-nav">
+            <button className="app-sidebar-nav-item" onClick={switchToMagfi}>
+              <IconSwitch />
               Switch to Magfi's view
             </button>
-            <div className="user-chip" style={{ cursor: "default" }}>
-              <span className="user-chip-avatar" style={{ background: "linear-gradient(135deg,#caa06a,#a56233)" }}>
-                {team.slice(0, 2).toUpperCase()}
-              </span>
-              <span className="user-chip-text">
-                <span className="user-chip-name">{team}</span>
-                <span className="user-chip-role">Team view</span>
-              </span>
-            </div>
+          </div>
+
+          <div className="app-sidebar-divider" />
+          <div className="user-chip" style={{ width: "100%", cursor: "default" }}>
+            <span className="user-chip-avatar" style={{ background: "linear-gradient(135deg,#caa06a,#a56233)" }}>
+              {team.slice(0, 2).toUpperCase()}
+            </span>
+            <span className="user-chip-text">
+              <span className="user-chip-name">{team}</span>
+              <span className="user-chip-role">Team view</span>
+            </span>
           </div>
         </div>
 
-        <div className="app-content">
+        <div className="app-main-column">
+          <div className="main-topbar">
+            <div className="main-topbar-context">
+              Submit a change
+              {project && <span className="text-tertiary"> · {project.name}</span>}
+            </div>
+          </div>
+
+          <div className="app-content">
           <div style={{ maxWidth: 980, margin: "0 auto" }}>
             <div style={{ marginBottom: 28 }}>
               <h1 className="page-title" style={{ fontSize: 30 }}>
@@ -330,6 +347,7 @@ export function Screen0Submit() {
                 Submit for legal check →
               </button>
             </div>
+          </div>
           </div>
         </div>
       </div>

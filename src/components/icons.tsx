@@ -77,6 +77,15 @@ export function IconGear({ size = 15 }: IconProps) {
   );
 }
 
+export function IconSwitch({ size = 15 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" {...base}>
+      <path d="M2.5 5.5 H12 M9.5 3 L12 5.5 L9.5 8" />
+      <path d="M13.5 10.5 H4 M6.5 8 L4 10.5 L6.5 13" />
+    </svg>
+  );
+}
+
 export function IconCheck({ size = 13 }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 16 16" {...base}>

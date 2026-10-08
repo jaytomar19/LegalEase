@@ -148,13 +148,13 @@ a:hover {
 }
 
 .app-sidebar {
-  width: 216px;
+  width: 188px;
   flex-shrink: 0;
   border-right: 1px solid var(--border);
   background: var(--surface);
   display: flex;
   flex-direction: column;
-  padding: 18px 14px;
+  padding: 18px 12px;
 }
 
 .app-sidebar-brand {
@@ -1729,13 +1729,37 @@ a:hover {
   background: var(--surface);
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: 24px;
   padding: 0 24px;
+}
+
+.team-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.team-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.team-topbar-project {
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .team-brand {
   font-size: 14px;
   font-weight: 600;
+  flex-shrink: 0;
 }
 
 /* ---------------- Misc utility ---------------- */
