@@ -26,7 +26,7 @@ export function Screen7Tracking() {
           on and read-only. Watching Slack #onboarding-flow, #summaries-dev, #image-style and Jira projects A to
           E. Never watched: direct messages and HR channels. Only the triggering snippet is kept. An item here
           never becomes a legal review item on its own — it only becomes one if the team formally submits a
-          change document for Checkpoint to check.
+          change document for LegalEase to check.
         </div>
       </div>
 

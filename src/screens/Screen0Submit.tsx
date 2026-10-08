@@ -94,9 +94,14 @@ export function Screen0Submit() {
       <div className="app-workspace">
         <div className="team-topbar">
           <div className="team-brand flex-row gap-8">
-            <span className="app-header-brand-mark">C</span>
-            Checkpoint
+            <span className="app-header-brand-mark">L</span>
+            LegalEase
           </div>
+
+          <div className="text-secondary" style={{ fontSize: 13 }}>
+            Project <strong style={{ color: "var(--text)" }}>{project?.name ?? "—"}</strong>
+          </div>
+
           <div className="flex-row gap-12">
             <button
               className="link-btn"
@@ -241,11 +246,11 @@ export function Screen0Submit() {
                 </div>
               </div>
 
-              {/* RIGHT: Checkpoint contextual panel */}
+              {/* RIGHT: LegalEase contextual panel */}
               <div>
                 <div className="surface-card-tint" style={{ padding: 20, marginBottom: 16 }}>
                   <div className="card-label on-tint" style={{ marginBottom: 10 }}>
-                    Checkpoint
+                    LegalEase
                   </div>
                   <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.5, marginBottom: 16 }}>
                     This change will be checked against the legal approval already recorded for this project.

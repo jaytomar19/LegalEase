@@ -33,8 +33,8 @@ export function Sidebar() {
   return (
     <div className="app-sidebar">
       <div className="app-sidebar-brand">
-        <span className="app-header-brand-mark">C</span>
-        Checkpoint
+        <span className="app-header-brand-mark">L</span>
+        LegalEase
       </div>
 
       <div className="app-sidebar-section-label">Menu</div>
