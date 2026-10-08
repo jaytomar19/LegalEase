@@ -29,6 +29,13 @@ export type Project = {
   defaultTeam: Team;
   feature: string;
   approvalExists: boolean;
+  owner?: string;
+  prdLink?: string;
+  statusType?: string;
+  statusText?: string;
+  lastReview?: string;
+  openItems?: string;
+  avatarClass?: string;
 };
 
 export type ChangeDocument = {

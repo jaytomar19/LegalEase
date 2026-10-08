@@ -3197,6 +3197,145 @@ input, select, textarea {
   color: #C084FC;
 }
 
+/* ADD PROJECT MANUALLY MODAL STYLES */
+.add-project-modal {
+  width: 100%;
+  max-width: 480px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 24px 28px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  position: relative;
+}
+
+.add-project-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.add-project-brand-tag {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #6B52B6;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.dark-mode .add-project-brand-tag {
+  color: #A78BFA;
+}
+
+.add-project-modal-title {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 4px;
+}
+
+.add-project-modal-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.modal-close-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.form-field-group {
+  margin-bottom: 16px;
+}
+
+.form-field-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.add-project-input {
+  width: 100%;
+  padding: 10px 14px;
+  background: #FAF8F5;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  font-size: 13.5px;
+  color: var(--text-main);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.dark-mode .add-project-input {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.add-project-input:focus {
+  border-color: #6B52B6;
+  box-shadow: 0 0 0 3px rgba(107, 82, 182, 0.1);
+}
+
+.add-project-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.btn-cancel-modal {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-cancel-modal:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.btn-submit-modal {
+  background: #262338;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #FFFFFF;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.dark-mode .btn-submit-modal {
+  background: #6B52B6;
+}
+
+.btn-submit-modal:hover {
+  opacity: 0.9;
+}
+
 
 
 

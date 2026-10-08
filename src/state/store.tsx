@@ -81,7 +81,14 @@ type Action =
         fileName: string;
       };
     }
-  | { type: "ADD_PROJECT"; id: string; name: string; description: string }
+  | {
+      type: "ADD_PROJECT";
+      id: string;
+      name: string;
+      description?: string;
+      owner?: string;
+      prdLink?: string;
+    }
   | { type: "MARK_ALL_READ" }
   | {
       type: "CONFIRM_DECISION";
@@ -174,15 +181,25 @@ function reducer(state: AppState, action: Action): AppState {
 
     case "ADD_PROJECT": {
       const id = action.id;
+      const avatarClasses = ["avatar-c", "avatar-a", "avatar-s", "avatar-b", "avatar-w"];
+      const randomAvatarClass = avatarClasses[Math.floor(Math.random() * avatarClasses.length)];
+
       const newProject: Project = {
         id,
         name: action.name,
-        subtitle: action.description || action.name,
+        subtitle: action.description || `${action.name} project.`,
         people: 1,
         avatars: ["+1"],
-        defaultTeam: "Engineering",
-        feature: "",
-        approvalExists: false,
+        defaultTeam: "Product management",
+        feature: action.name,
+        approvalExists: true,
+        owner: action.owner || "Magfi · Legal",
+        prdLink: action.prdLink || "",
+        statusText: "On track",
+        statusType: "on-track",
+        lastReview: "Just now",
+        openItems: "No open items",
+        avatarClass: randomAvatarClass,
       };
       return { ...state, projects: [...state.projects, newProject] };
     }

@@ -1,75 +1,31 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { useStore } from "../state/store";
 
 export function ScreenProjects() {
-  const { dispatch } = useStore();
+  const { state, dispatch } = useStore();
   const [search, setSearch] = useState("");
   const [dept, setDept] = useState("all");
   const [status, setStatus] = useState("all");
   const [lastRev, setLastRev] = useState("all");
 
-  const projects = [
-    {
-      id: "C",
-      initial: "A",
-      name: "AI Prototyping",
-      description: "AI prototyping and code generation.",
-      owner: "Sarah Chen · Product",
-      lastReview: "24 Sep 2026",
-      openItems: "2 open items",
-      statusText: "At risk",
-      statusType: "at-risk",
-      avatarClass: "avatar-c",
-    },
-    {
-      id: "A",
-      initial: "A",
-      name: "AI Assistant",
-      description: "AI features across products.",
-      owner: "Daniel Park · Design",
-      lastReview: "12 Aug 2026",
-      openItems: "1 open item",
-      statusText: "Under re-review",
-      statusType: "re-review",
-      avatarClass: "avatar-a",
-    },
-    {
-      id: "S",
-      initial: "W",
-      name: "Website Publishing",
-      description: "Website publishing.",
-      owner: "Priya Shah · Product",
-      lastReview: "15 Aug 2026",
-      openItems: "No open items",
-      statusText: "On track",
-      statusType: "on-track",
-      avatarClass: "avatar-s",
-    },
-    {
-      id: "B",
-      initial: "B",
-      name: "Brand Assets",
-      description: "Brand asset generation.",
-      owner: "Alex Kim · Marketing",
-      lastReview: "10 Sep 2026",
-      openItems: "1 open item",
-      statusText: "Needs attention",
-      statusType: "needs-attention",
-      avatarClass: "avatar-b",
-    },
-    {
-      id: "W",
-      initial: "I",
-      name: "Image and Video",
-      description: "Image and video generation.",
-      owner: "Jordan Lee · Engineering",
-      lastReview: "18 Sep 2026",
-      openItems: "1 open item",
-      statusText: "Needs attention",
-      statusType: "needs-attention",
-      avatarClass: "avatar-w",
-    },
-  ];
+  // Modal State for "Add project manually"
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [projectName, setProjectName] = useState("");
+  const [owner, setOwner] = useState("");
+  const [prdLink, setPrdLink] = useState("");
+
+  const projects = state.projects.map((p) => ({
+    id: p.id,
+    initial: p.name.trim().charAt(0).toUpperCase() || "P",
+    name: p.name,
+    description: p.subtitle || `${p.name} project`,
+    owner: p.owner || `${p.defaultTeam} team`,
+    lastReview: p.lastReview || "10 Sep 2026",
+    openItems: p.openItems || "No open items",
+    statusText: p.statusText || "On track",
+    statusType: p.statusType || "on-track",
+    avatarClass: p.avatarClass || "avatar-c",
+  }));
 
   const filteredProjects = projects
     .filter((p) => {
@@ -115,6 +71,27 @@ export function ScreenProjects() {
     setLastRev("all");
   }
 
+  function handleAddProjectSubmit(e: FormEvent) {
+    e.preventDefault();
+    const nameTrim = projectName.trim();
+    if (!nameTrim) return;
+
+    const id = `prj-${Date.now()}`;
+    dispatch({
+      type: "ADD_PROJECT",
+      id,
+      name: nameTrim,
+      owner: owner.trim() || "Magfi · Legal",
+      prdLink: prdLink.trim() || "",
+    });
+
+    // Reset and close modal
+    setProjectName("");
+    setOwner("");
+    setPrdLink("");
+    setShowAddModal(false);
+  }
+
   return (
     <div className="projects-container">
       <div className="page-header">
@@ -122,7 +99,9 @@ export function ScreenProjects() {
           <h1 className="page-title">Projects</h1>
           <div className="page-subtitle">All projects with their current Legal review status.</div>
         </div>
-        <button className="btn-add-project">+ Add project manually</button>
+        <button className="btn-add-project" onClick={() => setShowAddModal(true)}>
+          + Add project manually
+        </button>
       </div>
 
       <div className="filter-controls-row">
@@ -219,6 +198,71 @@ export function ScreenProjects() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Add Project Manually Modal */}
+      {showAddModal && (
+        <div className="modal-backdrop" onClick={() => setShowAddModal(false)}>
+          <div className="modal-container add-project-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="add-project-modal-header">
+              <div>
+                <span className="add-project-brand-tag">FLAGWISE</span>
+                <h2 className="add-project-modal-title">Add project manually</h2>
+                <div className="add-project-modal-sub">
+                  Add an existing Legal project and the source FlagWise should monitor.
+                </div>
+              </div>
+              <button className="modal-close-btn" onClick={() => setShowAddModal(false)}>
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleAddProjectSubmit}>
+              <div className="form-field-group">
+                <label className="form-field-label">Project name</label>
+                <input
+                  type="text"
+                  className="add-project-input"
+                  placeholder="Project name"
+                  value={projectName}
+                  onChange={(e) => setProjectName(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-field-group">
+                <label className="form-field-label">Owner</label>
+                <input
+                  type="text"
+                  className="add-project-input"
+                  placeholder="Name and department"
+                  value={owner}
+                  onChange={(e) => setOwner(e.target.value)}
+                />
+              </div>
+
+              <div className="form-field-group">
+                <label className="form-field-label">PRD link</label>
+                <input
+                  type="text"
+                  className="add-project-input"
+                  placeholder="https://..."
+                  value={prdLink}
+                  onChange={(e) => setPrdLink(e.target.value)}
+                />
+              </div>
+
+              <div className="add-project-actions">
+                <button type="button" className="btn-cancel-modal" onClick={() => setShowAddModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn-submit-modal">
+                  Add project
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>
