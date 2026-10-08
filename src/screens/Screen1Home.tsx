@@ -87,9 +87,9 @@ export function Screen1Home() {
 
           <div className="attention-list">
             <div className="attention-item" onClick={goToProjects}>
-              <span className="project-circle-avatar avatar-c">C</span>
+              <span className="project-circle-avatar avatar-c">A</span>
               <div className="attention-item-body">
-                <div className="attention-item-title">Lumen Compose</div>
+                <div className="attention-item-title">AI Prototyping</div>
                 <div className="attention-item-sub">2 open items · Legal review status needs attention</div>
               </div>
               <span className="badge badge-high-pill">High</span>
@@ -99,7 +99,7 @@ export function Screen1Home() {
             <div className="attention-item" onClick={goToProjects}>
               <span className="project-circle-avatar avatar-a">A</span>
               <div className="attention-item-body">
-                <div className="attention-item-title">Lumen Assist</div>
+                <div className="attention-item-title">AI Assistant</div>
                 <div className="attention-item-sub">1 open item · Legal review status needs attention</div>
               </div>
               <span className="badge badge-medium-pill">Medium</span>
@@ -109,7 +109,7 @@ export function Screen1Home() {
             <div className="attention-item" onClick={goToProjects}>
               <span className="project-circle-avatar avatar-b">B</span>
               <div className="attention-item-body">
-                <div className="attention-item-title">Lumen Brand</div>
+                <div className="attention-item-title">Brand Assets</div>
                 <div className="attention-item-sub">1 open item · Legal review status needs attention</div>
               </div>
               <span className="badge badge-medium-pill">Medium</span>
@@ -130,7 +130,7 @@ export function Screen1Home() {
               <span className="recent-sparkle-icon icon-pink">✦</span>
               <div className="recent-item-body">
                 <div className="recent-item-title">AI provider changed from Vendor A to Vendor B</div>
-                <div className="recent-item-sub">Lumen Compose · Product</div>
+                <div className="recent-item-sub">AI Prototyping · Product</div>
               </div>
               <div className="recent-item-date">8 Oct</div>
             </div>
@@ -139,7 +139,7 @@ export function Screen1Home() {
               <span className="recent-sparkle-icon icon-yellow">✦</span>
               <div className="recent-item-body">
                 <div className="recent-item-title">Retention increased from 20 to 25 days</div>
-                <div className="recent-item-sub">Lumen Compose · Engineering</div>
+                <div className="recent-item-sub">AI Prototyping · Engineering</div>
               </div>
               <div className="recent-item-date">7 Oct</div>
             </div>
@@ -148,7 +148,7 @@ export function Screen1Home() {
               <span className="recent-sparkle-icon icon-blue">✦</span>
               <div className="recent-item-body">
                 <div className="recent-item-title">New AI image feature enabled by default</div>
-                <div className="recent-item-sub">Lumen Weave · Design</div>
+                <div className="recent-item-sub">Image and Video · Design</div>
               </div>
               <div className="recent-item-date">5 Oct</div>
             </div>

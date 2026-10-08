@@ -1,10 +1,13 @@
 import type { ReactNode } from "react";
+import { useStore } from "../state/store";
 import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
 
 export function AppShell({ children }: { children: ReactNode }) {
+  const { state } = useStore();
+
   return (
-    <div className="app-outer">
+    <div className={`app-outer ${state.darkMode ? "dark-mode" : ""}`}>
       <div className="prototype-top-bar">
         <div className="prototype-left">
           <span className="prototype-sparkle">✦</span>

@@ -11,7 +11,7 @@ import type {
 export const PROJECTS: Project[] = [
   {
     id: "C",
-    name: "Lumen Compose",
+    name: "AI Prototyping",
     subtitle: "AI prototyping and code generation.",
     people: 4,
     avatars: ["SC", "+3"],
@@ -21,7 +21,7 @@ export const PROJECTS: Project[] = [
   },
   {
     id: "A",
-    name: "Lumen Assist",
+    name: "AI Assistant",
     subtitle: "AI features across products.",
     people: 5,
     avatars: ["DP", "+4"],
@@ -31,7 +31,7 @@ export const PROJECTS: Project[] = [
   },
   {
     id: "S",
-    name: "Lumen Sites",
+    name: "Website Publishing",
     subtitle: "Website publishing.",
     people: 3,
     avatars: ["PS", "+2"],
@@ -41,7 +41,7 @@ export const PROJECTS: Project[] = [
   },
   {
     id: "B",
-    name: "Lumen Brand",
+    name: "Brand Assets",
     subtitle: "Brand asset generation.",
     people: 3,
     avatars: ["AK", "+2"],
@@ -51,7 +51,7 @@ export const PROJECTS: Project[] = [
   },
   {
     id: "W",
-    name: "Lumen Weave",
+    name: "Image and Video",
     subtitle: "Image and video generation.",
     people: 4,
     avatars: ["JL", "+3"],
@@ -67,7 +67,7 @@ export const SAMPLE_DOCUMENTS: Record<
 > = {
   C: {
     title: "AI provider vendor update",
-    summary: "Changing AI provider from Vendor A to Vendor B for Lumen Compose.",
+    summary: "Changing AI provider from Vendor A to Vendor B for AI Prototyping.",
   },
   A: {
     title: "Purchase history input clarification",
@@ -75,7 +75,7 @@ export const SAMPLE_DOCUMENTS: Record<
   },
   S: {
     title: "EU region feature rollout",
-    summary: "Feature rollout in EU region for Lumen Sites.",
+    summary: "Feature rollout in EU region for Website Publishing.",
   },
   B: {
     title: "Launch copy disclosure update",
@@ -83,7 +83,7 @@ export const SAMPLE_DOCUMENTS: Record<
   },
   W: {
     title: "Default-on AI image feature",
-    summary: "Switching AI image feature on by default in Lumen Weave.",
+    summary: "Switching AI image feature on by default in Image and Video.",
   },
 };
 
@@ -95,7 +95,7 @@ export const INITIAL_FLAGS: Flag[] = [
     projectId: "C",
     team: "Product management",
     documentId: "doc-1042",
-    documentTitle: "Lumen Compose · Product",
+    documentTitle: "AI Prototyping · Product",
     feature: "AI provider",
     category: "Vendor change",
     urgency: "urgent",
@@ -110,7 +110,7 @@ export const INITIAL_FLAGS: Flag[] = [
     projectId: "S",
     team: "Product management",
     documentId: "doc-1043",
-    documentTitle: "Lumen Sites · Product",
+    documentTitle: "Website Publishing · Product",
     feature: "EU region",
     category: "Jurisdiction",
     urgency: "later",
@@ -125,7 +125,7 @@ export const INITIAL_FLAGS: Flag[] = [
     projectId: "W",
     team: "Design",
     documentId: "doc-1054",
-    documentTitle: "Lumen Weave · Design",
+    documentTitle: "Image and Video · Design",
     feature: "AI image feature",
     category: "Default setting",
     urgency: "later",
@@ -141,7 +141,7 @@ export const INITIAL_FLAGS: Flag[] = [
     projectId: "S",
     team: "Product management",
     documentId: "doc-1055",
-    documentTitle: "Lumen Sites · Product",
+    documentTitle: "Website Publishing · Product",
     feature: "Slack export",
     category: "Vendor change",
     urgency: "later",
@@ -157,7 +157,7 @@ export const INITIAL_FLAGS: Flag[] = [
     projectId: "A",
     team: "Product management",
     documentId: "doc-1066",
-    documentTitle: "Lumen Assist · Product",
+    documentTitle: "AI Assistant · Product",
     feature: "Purchase history",
     category: "Data category",
     urgency: "later",
@@ -172,7 +172,7 @@ export const INITIAL_FLAGS: Flag[] = [
     projectId: "A",
     team: "Engineering",
     documentId: "doc-1067",
-    documentTitle: "Lumen Assist · Engineering",
+    documentTitle: "AI Assistant · Engineering",
     feature: "Request logs",
     category: "Data kept longer",
     urgency: "later",
@@ -187,7 +187,7 @@ export const INITIAL_FLAGS: Flag[] = [
     projectId: "W",
     team: "Design",
     documentId: "doc-1078",
-    documentTitle: "Lumen Weave · Design",
+    documentTitle: "Image and Video · Design",
     feature: "Image captions",
     category: "Vendor change",
     urgency: "later",
@@ -203,7 +203,7 @@ export const INITIAL_FLAGS: Flag[] = [
     projectId: "B",
     team: "Product management",
     documentId: "doc-1079",
-    documentTitle: "Lumen Brand · Marketing",
+    documentTitle: "Brand Assets · Marketing",
     feature: "Launch copy",
     category: "Generated content",
     urgency: "later",

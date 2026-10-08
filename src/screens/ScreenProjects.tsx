@@ -10,8 +10,9 @@ export function ScreenProjects() {
 
   const projects = [
     {
-      id: "C",
-      name: "Lumen Compose",
+      id: "A1",
+      initial: "A",
+      name: "AI Prototyping",
       description: "AI prototyping and code generation.",
       owner: "Sarah Chen · Product",
       lastReview: "24 Sep 2026",
@@ -21,8 +22,9 @@ export function ScreenProjects() {
       avatarClass: "avatar-c",
     },
     {
-      id: "A",
-      name: "Lumen Assist",
+      id: "A2",
+      initial: "A",
+      name: "AI Assistant",
       description: "AI features across products.",
       owner: "Daniel Park · Design",
       lastReview: "12 Aug 2026",
@@ -32,8 +34,9 @@ export function ScreenProjects() {
       avatarClass: "avatar-a",
     },
     {
-      id: "S",
-      name: "Lumen Sites",
+      id: "W",
+      initial: "W",
+      name: "Website Publishing",
       description: "Website publishing.",
       owner: "Priya Shah · Product",
       lastReview: "15 Aug 2026",
@@ -44,7 +47,8 @@ export function ScreenProjects() {
     },
     {
       id: "B",
-      name: "Lumen Brand",
+      initial: "B",
+      name: "Brand Assets",
       description: "Brand asset generation.",
       owner: "Alex Kim · Marketing",
       lastReview: "10 Sep 2026",
@@ -54,8 +58,9 @@ export function ScreenProjects() {
       avatarClass: "avatar-b",
     },
     {
-      id: "W",
-      name: "Lumen Weave",
+      id: "I",
+      initial: "I",
+      name: "Image and Video",
       description: "Image and video generation.",
       owner: "Jordan Lee · Engineering",
       lastReview: "18 Sep 2026",
@@ -120,7 +125,7 @@ export function ScreenProjects() {
             }
           >
             <div className="project-card-header">
-              <span className={`project-circle-avatar ${p.avatarClass}`}>{p.id}</span>
+              <span className={`project-circle-avatar ${p.avatarClass}`}>{p.initial}</span>
               <span className={`project-status-pill pill-${p.statusType}`}>
                 {p.statusType === "at-risk" && "⏱ "}
                 {p.statusType === "re-review" && "⏱ "}

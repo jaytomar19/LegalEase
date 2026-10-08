@@ -34,6 +34,7 @@ export type AppState = {
   filters: { show: ShowFilter; groupBy: GroupBy; keyword: string };
   submissionResult: SubmissionResult;
   trackingBadgeBase: number;
+  darkMode: boolean;
 };
 
 function createInitialState(): AppState {
@@ -49,11 +50,13 @@ function createInitialState(): AppState {
     filters: { show: "all", groupBy: null, keyword: "" },
     submissionResult: null,
     trackingBadgeBase: 3,
+    darkMode: false,
   };
 }
 
 type Action =
   | { type: "RESET" }
+  | { type: "TOGGLE_DARK_MODE" }
   | { type: "SET_ROLE"; role: Role }
   | { type: "NAVIGATE"; screen: ScreenState }
   | { type: "SET_FILTERS"; filters: Partial<AppState["filters"]> }
@@ -93,6 +96,9 @@ function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
     case "RESET":
       return createInitialState();
+
+    case "TOGGLE_DARK_MODE":
+      return { ...state, darkMode: !state.darkMode };
 
     case "SET_ROLE":
       return { ...state, role: action.role };

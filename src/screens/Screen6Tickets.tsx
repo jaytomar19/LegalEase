@@ -76,7 +76,7 @@ export function Screen6Tickets() {
                 <span className="kanban-ticket-id">#1042</span>
               </div>
               <div className="kanban-card-title">AI provider changed from Vendor A to Vendor B</div>
-              <div className="kanban-card-sub">Lumen Compose · Product</div>
+              <div className="kanban-card-sub">AI Prototyping · Product</div>
               <div className="kanban-card-tags">
                 <span className="tag-pill">Vendor</span>
                 <span className="tag-pill">Contract</span>
@@ -96,7 +96,7 @@ export function Screen6Tickets() {
                 <span className="kanban-ticket-id">#1043</span>
               </div>
               <div className="kanban-card-title">Feature rollout in EU region</div>
-              <div className="kanban-card-sub">Lumen Sites · Product</div>
+              <div className="kanban-card-sub">Website Publishing · Product</div>
               <div className="kanban-card-tags">
                 <span className="tag-pill">Privacy</span>
                 <span className="tag-pill">Data use</span>
@@ -131,7 +131,7 @@ export function Screen6Tickets() {
                 <span className="kanban-ticket-id">#1054</span>
               </div>
               <div className="kanban-card-title">Default-on AI image feature</div>
-              <div className="kanban-card-sub">Lumen Weave · Design</div>
+              <div className="kanban-card-sub">Image and Video · Design</div>
               <div className="kanban-card-tags">
                 <span className="tag-pill">Default setting</span>
                 <span className="tag-pill">Consumer</span>
@@ -151,7 +151,7 @@ export function Screen6Tickets() {
                 <span className="kanban-ticket-id">#1055</span>
               </div>
               <div className="kanban-card-title">New third-party Slack export</div>
-              <div className="kanban-card-sub">Lumen Sites · Product</div>
+              <div className="kanban-card-sub">Website Publishing · Product</div>
               <div className="kanban-card-tags">
                 <span className="tag-pill">Privacy</span>
                 <span className="tag-pill">Data use</span>
@@ -186,7 +186,7 @@ export function Screen6Tickets() {
                 <span className="kanban-ticket-id">#1066</span>
               </div>
               <div className="kanban-card-title">Clarification on purchase-history input</div>
-              <div className="kanban-card-sub">Lumen Assist · Product</div>
+              <div className="kanban-card-sub">AI Assistant · Product</div>
               <div className="kanban-card-tags">
                 <span className="tag-pill">Data category</span>
                 <span className="tag-pill">Privacy</span>
@@ -216,7 +216,7 @@ export function Screen6Tickets() {
                 <span className="kanban-ticket-id">#1067</span>
               </div>
               <div className="kanban-card-title">AI request logs kept for longer</div>
-              <div className="kanban-card-sub">Lumen Assist · Engineering</div>
+              <div className="kanban-card-sub">AI Assistant · Engineering</div>
               <div className="kanban-card-tags">
                 <span className="tag-pill">Privacy</span>
                 <span className="tag-pill">Data use</span>
@@ -251,7 +251,7 @@ export function Screen6Tickets() {
                 <span className="kanban-ticket-id">#1078</span>
               </div>
               <div className="kanban-card-title">New AI provider for image captions</div>
-              <div className="kanban-card-sub">Lumen Weave · Design</div>
+              <div className="kanban-card-sub">Image and Video · Design</div>
               <div className="kanban-card-tags">
                 <span className="tag-pill">Vendor</span>
                 <span className="tag-pill">Contract</span>
@@ -271,7 +271,7 @@ export function Screen6Tickets() {
                 <span className="kanban-ticket-id">#1079</span>
               </div>
               <div className="kanban-card-title">Updated launch copy needs disclosure</div>
-              <div className="kanban-card-sub">Lumen Brand · Marketing</div>
+              <div className="kanban-card-sub">Brand Assets · Marketing</div>
               <div className="kanban-card-tags">
                 <span className="tag-pill">Privacy</span>
                 <span className="tag-pill">Data use</span>

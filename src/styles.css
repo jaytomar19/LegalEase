@@ -44,6 +44,128 @@
   --shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
+:root.dark-mode,
+.app-outer.dark-mode,
+.dark-mode {
+  --outer-bg: #121214;
+  --workspace-bg: #121214;
+  --card-bg: #1C1C21;
+  --border-color: #2A2A34;
+  --border-darker: #3A3A48;
+  
+  --text-main: #F3F4F6;
+  --text-muted: #9CA3AF;
+  --text-light: #6B7280;
+
+  --pink-tile-bg: #3B1B29;
+  --pink-tile-text: #F472B6;
+  --pink-nav-active: #3B1B29;
+
+  --yellow-tile-bg: #36290E;
+  --yellow-tile-text: #FBBF24;
+
+  --blue-tile-bg: #1E293B;
+  --blue-tile-text: #60A5FA;
+
+  --purple-tile-bg: #2E1065;
+  --purple-tile-text: #C084FC;
+
+  --high-bg: #450A0A;
+  --high-text: #F87171;
+
+  --medium-bg: #451A03;
+  --medium-text: #FBBF24;
+
+  --low-bg: #064E3B;
+  --low-text: #34D399;
+
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.6);
+}
+
+.dark-mode .app-sidebar {
+  background: #16161A;
+  border-right-color: #2A2A34;
+}
+
+.dark-mode .app-brand-name {
+  color: #FFFFFF;
+}
+
+.dark-mode .app-sidebar-nav-item {
+  color: #D1D5DB;
+}
+
+.dark-mode .app-sidebar-nav-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode .app-sidebar-status-card {
+  background: #1C1C21;
+  border-color: #2A2A34;
+}
+
+.dark-mode .app-sidebar-status-title {
+  color: #FFFFFF;
+}
+
+.dark-mode .main-topbar-search {
+  background: #1C1C21;
+  border-color: #2A2A34;
+}
+
+.dark-mode .main-topbar-search-input {
+  color: #F9FAFB;
+}
+
+.dark-mode .page-title,
+.dark-mode .summary-block-title,
+.dark-mode .project-card-title,
+.dark-mode .kanban-card-title,
+.dark-mode .kanban-col-title,
+.dark-mode .detail-title,
+.dark-mode .tool-card-name,
+.dark-mode .connected-tools-title,
+.dark-mode .user-chip-name {
+  color: #F9FAFB;
+}
+
+.dark-mode .btn-add-project,
+.dark-mode .btn-add-tool,
+.dark-mode .filter-select,
+.dark-mode .doc-ref-btn {
+  background: #25252D;
+  border-color: #374151;
+  color: #F9FAFB;
+}
+
+.dark-mode .kanban-card,
+.dark-mode .project-card,
+.dark-mode .summary-block,
+.dark-mode .connected-tools-card,
+.dark-mode .detail-card,
+.dark-mode .status-side-card {
+  background: #1C1C21;
+  border-color: #2A2A34;
+}
+
+.dark-mode .kanban-card-affects,
+.dark-mode .before-box,
+.dark-mode .approval-info-box,
+.dark-mode .source-chip,
+.dark-mode .counsel-action-btn,
+.dark-mode .tool-card,
+.dark-mode .attention-item:hover,
+.dark-mode .recent-item:hover {
+  background: #25252D;
+  border-color: #374151;
+  color: #F9FAFB;
+}
+
+.dark-mode .box-text {
+  color: #F9FAFB;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
