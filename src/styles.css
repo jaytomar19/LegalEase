@@ -1262,6 +1262,23 @@ a:hover {
   box-shadow: var(--shadow-panel);
 }
 
+.panel-wide {
+  width: 980px;
+}
+
+.flag-detail-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .flag-detail-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
 .panel-header {
   position: sticky;
   top: 0;
@@ -1816,6 +1833,17 @@ a:hover {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  color: white;
+}
+
+.ticket-col-icon.urgent {
+  background: var(--urgent);
+}
+.ticket-col-icon.later {
+  background: var(--later);
+}
+.ticket-col-icon.resolved {
+  background: var(--resolved);
 }
 
 .ticket-col-title {

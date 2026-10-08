@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useStore } from "../state/store";
 import type { DecisionChoice } from "../types";
 import { UrgencyTag, CategoryTag } from "../components/Tags";
+import { IconRadar } from "../components/icons";
 
 const REQUIRED_CHANGES_DEFAULT = [
   "Get written confirmation that Provider B will not train on customer data.",
@@ -9,12 +10,7 @@ const REQUIRED_CHANGES_DEFAULT = [
   "Notify customers of the new provider at least 15 days before go-live.",
 ];
 
-const STILL_NEEDED = [
-  "Provider B terms",
-  "Storage/retention details",
-  "Training policy",
-  "Customer notice timing",
-];
+const STILL_NEEDED = ["Provider B terms", "Storage/retention details", "Training policy", "Customer notice timing"];
 
 export function Screen3FlagDetail() {
   const { state, dispatch } = useStore();
@@ -59,7 +55,7 @@ export function Screen3FlagDetail() {
 
   return (
     <div className="panel-overlay" onClick={close}>
-      <div className="panel" onClick={(e) => e.stopPropagation()}>
+      <div className="panel panel-wide" onClick={(e) => e.stopPropagation()}>
         <div className="panel-header">
           <div className="flex-row gap-8">
             <UrgencyTag urgency={flag.urgency} />
@@ -77,261 +73,290 @@ export function Screen3FlagDetail() {
           <div className="section-label" style={{ marginBottom: 2 }}>
             {flag.category}
           </div>
-          <h2 style={{ fontSize: 18, fontWeight: 600, margin: "0 0 4px" }}>{flag.title}</h2>
+          <h2 style={{ fontSize: 20, fontWeight: 600, margin: "0 0 4px" }}>{flag.title}</h2>
           <div className="text-secondary" style={{ fontSize: 13, marginBottom: 18 }}>
             {flag.documentTitle} · {flag.team} · today
           </div>
 
-          <div className="block-grid-2 section-block">
-            <div className="panel-surface panel-surface-pad">
-              <div className="section-label">What changed?</div>
-              <div className="flex-row gap-10" style={{ alignItems: "center" }}>
-                <span style={{ fontSize: 14, fontWeight: 600 }}>Provider A</span>
-                <span className="text-tertiary">→</span>
-                <span style={{ fontSize: 14, fontWeight: 700 }}>Provider B</span>
-              </div>
-              <div className="highlight" style={{ marginTop: 8, display: "inline-block" }}>
-                new vendor
-              </div>
-            </div>
-            <div className="panel-surface panel-surface-pad">
-              <div className="section-label">Why it matters</div>
-              <div style={{ fontSize: 13 }}>
-                A new vendor can start a notice period to customers, and its data terms may differ from what was
-                approved.
-              </div>
-            </div>
-          </div>
-
-          <div className="panel-surface panel-surface-pad section-block">
-            <div className="section-label">Compared with what Legal approved</div>
-            <div className="compare-cols">
-              <div className="compare-col">
-                <div className="compare-col-label">Legal approved</div>
-                <div className="fact-row">
-                  <span>Vendor</span>
-                  <strong>Provider A</strong>
+          <div className="flag-detail-layout">
+            {/* LEFT: numbered review sections */}
+            <div>
+              <div className="numbered-section">
+                <div className="numbered-section-header">
+                  <div className="numbered-section-title">What changed?</div>
+                  <div className="numbered-section-index">01</div>
                 </div>
-                <div className="fact-row">
-                  <span>Training on data</span>
-                  <strong>off</strong>
-                </div>
-                <div className="fact-row">
-                  <span>Data kept</span>
-                  <strong>briefly</strong>
-                </div>
-                <div className="fact-row">
-                  <span>Customer notice</span>
-                  <strong>required before launch</strong>
-                </div>
-              </div>
-              <div className="compare-col">
-                <div className="compare-col-label">Now proposed</div>
-                <div className="fact-row">
-                  <span>Vendor</span>
-                  <strong>Provider B (new)</strong>
-                </div>
-                <div className="fact-row">
-                  <span>Training on data</span>
-                  <strong>not stated</strong>
-                </div>
-                <div className="fact-row">
-                  <span>Data kept</span>
-                  <strong>not stated</strong>
-                </div>
-                <div className="fact-row">
-                  <span>Customer notice</span>
-                  <strong>not stated</strong>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="panel-surface panel-surface-pad section-block">
-            <div className="section-label">Still needed</div>
-            <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, lineHeight: 1.8 }}>
-              {STILL_NEEDED.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="panel-surface panel-surface-pad section-block" style={{ fontSize: 13 }}>
-            <div className="section-label">Evidence / artefact</div>
-            Check this artefact: <strong>Vendor DPA, clause 4.2</strong>
-          </div>
-
-          <div className="notice notice-review section-block">
-            <span className="notice-icon">🔒</span>
-            <div>This needs your review. The agent can't act on it automatically.</div>
-          </div>
-
-          {flag.status === "awaiting-review" && (
-            <div className="panel-surface panel-surface-pad section-block">
-              <div className="section-label">Legal decision</div>
-              <div className="decision-options">
-                <button
-                  className={`decision-option ${choice === "approved" ? "selected" : ""}`}
-                  onClick={() => setChoice("approved")}
-                >
-                  <span className="radio-dot" />
-                  Approved, go ahead
-                </button>
-                <button
-                  className={`decision-option ${choice === "comprehensive-review" ? "selected" : ""}`}
-                  onClick={() => setChoice("comprehensive-review")}
-                >
-                  <span className="radio-dot" />
-                  Needs a comprehensive review
-                </button>
-                <button
-                  className={`decision-option ${choice === "changes-required" ? "selected" : ""}`}
-                  onClick={() => setChoice("changes-required")}
-                >
-                  <span className="radio-dot" />
-                  Changes required
-                  <span className="badge badge-neutral" style={{ marginLeft: "auto" }}>
-                    Suggested
-                  </span>
-                </button>
-              </div>
-
-              {choice === "approved" && (
-                <div className="panel-surface panel-surface-pad" style={{ marginTop: 12 }}>
-                  <div className="field">
-                    <label className="field-label">Send to</label>
-                    <div style={{ fontSize: 13 }}>{flag.team}</div>
+                <div className="before-after-cols" style={{ marginBottom: 14 }}>
+                  <div className="before-after-box">
+                    <div className="before-after-label">Legal approved</div>
+                    {flag.documentTitle} will use <strong>Provider A</strong>.
                   </div>
-                  <div className="field">
-                    <label className="field-label">Note</label>
-                    <textarea className="textarea" rows={2} readOnly value={approvedNote} />
+                  <div className="before-after-box after">
+                    <div className="before-after-label">Now proposed</div>
+                    {flag.documentTitle} will use <strong>Provider B</strong>.
                   </div>
-                  <button className="btn btn-primary" disabled={submitting} onClick={() => confirm("approved")}>
-                    Send to {flag.team}
-                  </button>
                 </div>
-              )}
+                <table className="compare-table">
+                  <thead>
+                    <tr>
+                      <th>Fact</th>
+                      <th>Approved</th>
+                      <th>Now proposed</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td className="fact-name">Vendor</td>
+                      <td className="cell-secondary">Provider A</td>
+                      <td className="cell-secondary">Provider B (new)</td>
+                    </tr>
+                    <tr>
+                      <td className="fact-name">Training on data</td>
+                      <td className="cell-secondary">off</td>
+                      <td className="cell-secondary">not stated</td>
+                    </tr>
+                    <tr>
+                      <td className="fact-name">Data kept</td>
+                      <td className="cell-secondary">briefly</td>
+                      <td className="cell-secondary">not stated</td>
+                    </tr>
+                    <tr>
+                      <td className="fact-name">Customer notice</td>
+                      <td className="cell-secondary">required before launch</td>
+                      <td className="cell-secondary">not stated</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
 
-              {choice === "comprehensive-review" && (
-                <div className="panel-surface panel-surface-pad" style={{ marginTop: 12 }}>
-                  <div className="field">
-                    <label className="field-label">Assign to</label>
-                    <select
-                      className="select"
-                      value={assignee}
-                      onChange={(e) => setAssignee(e.target.value as "Senior Counsel" | "Privacy team")}
-                    >
-                      <option>Senior Counsel</option>
-                      <option>Privacy team</option>
-                    </select>
-                  </div>
-                  <div className="field">
-                    <label className="field-label">Note</label>
-                    <textarea
-                      className="textarea"
-                      rows={2}
-                      value={reviewNote}
-                      onChange={(e) => setReviewNote(e.target.value)}
-                    />
-                  </div>
-                  <button
-                    className="btn btn-primary"
-                    disabled={submitting}
-                    onClick={() => confirm("comprehensive-review")}
-                  >
-                    Start comprehensive review
-                  </button>
+              <div className="numbered-section">
+                <div className="numbered-section-header">
+                  <div className="numbered-section-title">Why was this flagged?</div>
+                  <div className="numbered-section-index">02</div>
                 </div>
-              )}
-
-              {choice === "changes-required" && (
-                <div className="panel-surface panel-surface-pad" style={{ marginTop: 12 }}>
-                  <div className="field-label" style={{ marginBottom: 10 }}>
-                    Required legal changes (suggested by the agent, edit as needed)
+                <div className="notice" style={{ background: "var(--kpi-urgent-bg)", borderLeftColor: "var(--urgent)" }}>
+                  <span className="notice-icon">✦</span>
+                  <div style={{ fontSize: 13 }}>
+                    <strong>Potential re-review trigger.</strong> A new vendor can start a notice period to
+                    customers, and its data terms may differ from what was approved.
                   </div>
-                  {requiredChanges.map((c) => (
-                    <div className="checklist-item" key={c.id}>
-                      <input
-                        type="checkbox"
-                        checked={c.checked}
-                        onChange={() =>
-                          setRequiredChanges((prev) =>
-                            prev.map((p) => (p.id === c.id ? { ...p, checked: !p.checked } : p))
-                          )
-                        }
-                      />
-                      <input
-                        className="input"
-                        value={c.text}
-                        onChange={(e) =>
-                          setRequiredChanges((prev) =>
-                            prev.map((p) => (p.id === c.id ? { ...p, text: e.target.value } : p))
-                          )
-                        }
-                      />
-                    </div>
+                </div>
+              </div>
+
+              <div className="numbered-section">
+                <div className="numbered-section-header">
+                  <div className="numbered-section-title">Which approval does this affect?</div>
+                  <div className="numbered-section-index">03</div>
+                </div>
+                <div className="panel-surface panel-surface-pad" style={{ fontSize: 13, marginBottom: 14 }}>
+                  Check this artefact: <strong>Vendor DPA, clause 4.2</strong>
+                </div>
+                <div className="field-label" style={{ marginBottom: 8 }}>
+                  Still needed
+                </div>
+                <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, lineHeight: 1.8 }}>
+                  {STILL_NEEDED.map((item) => (
+                    <li key={item}>{item}</li>
                   ))}
-                  <div className="flex-row gap-8" style={{ marginBottom: 14 }}>
-                    <input
-                      className="input"
-                      placeholder="Add another change"
-                      value={newChangeText}
-                      onChange={(e) => setNewChangeText(e.target.value)}
-                    />
+                </ul>
+              </div>
+
+              <div className="notice notice-review section-block">
+                <span className="notice-icon">🔒</span>
+                <div>This needs your review. The agent can't act on it automatically.</div>
+              </div>
+
+              {flag.audit && (
+                <div className="numbered-section">
+                  <div className="section-label">Audit trail</div>
+                  <div className="audit-timeline">
+                    {flag.audit.map((a, i) => (
+                      <div className="audit-item" key={i}>
+                        <div className="audit-rail">
+                          <div className="audit-dot" />
+                          {i < flag.audit!.length - 1 && <div className="audit-line" />}
+                        </div>
+                        <div className="audit-content">
+                          <div className="audit-time">{a.time}</div>
+                          <div>{a.action}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* RIGHT: AI suggestion + counsel actions */}
+            {flag.status === "awaiting-review" && (
+              <div>
+                <div className="ai-suggestion-card">
+                  <div className="ai-suggestion-icon">
+                    <IconRadar size={16} />
+                  </div>
+                  <div className="ai-suggestion-label">Suggested next step</div>
+                  <div className="ai-suggestion-text">
+                    Request Provider B's data terms and retention details, then choose Changes Required before
+                    {` ${flag.team}`} can go ahead.
+                  </div>
+                  <div className="ai-suggestion-reason">
+                    Based on: approved baseline, vendor-change trigger, missing Provider B documentation.
+                  </div>
+                  <div className="flex-row gap-10">
                     <button
-                      className="btn btn-secondary btn-sm"
-                      onClick={() => {
-                        if (!newChangeText.trim()) return;
-                        setRequiredChanges((prev) => [
-                          ...prev,
-                          { id: `rc-${Date.now()}`, text: newChangeText.trim(), checked: true },
-                        ]);
-                        setNewChangeText("");
-                      }}
+                      className="btn btn-primary btn-sm"
+                      onClick={() => setChoice("changes-required")}
                     >
-                      Add
+                      Accept suggestion
+                    </button>
+                    <button className="link-btn" onClick={() => setChoice(null)}>
+                      Override
                     </button>
                   </div>
-                  <div className="field">
-                    <label className="field-label">Note</label>
-                    <textarea
-                      className="textarea"
-                      rows={2}
-                      value={changesNote}
-                      onChange={(e) => setChangesNote(e.target.value)}
-                    />
+                </div>
+
+                <div className="panel-surface panel-surface-pad section-block">
+                  <div className="field-label" style={{ marginBottom: 10 }}>
+                    Counsel actions
                   </div>
                   <button
-                    className="btn btn-primary"
-                    disabled={submitting}
-                    onClick={() => confirm("changes-required")}
+                    className={`counsel-action-row ${choice === "approved" ? "selected" : ""}`}
+                    onClick={() => setChoice("approved")}
                   >
-                    Send to {flag.team}
+                    Approved, go ahead
+                  </button>
+                  <button
+                    className={`counsel-action-row ${choice === "comprehensive-review" ? "selected" : ""}`}
+                    onClick={() => setChoice("comprehensive-review")}
+                  >
+                    Needs a comprehensive review
+                  </button>
+                  <button
+                    className={`counsel-action-row ${choice === "changes-required" ? "selected" : ""}`}
+                    onClick={() => setChoice("changes-required")}
+                    style={{ marginBottom: 0 }}
+                  >
+                    Changes required
                   </button>
                 </div>
-              )}
-            </div>
-          )}
 
-          {flag.audit && (
-            <div className="section-block">
-              <div className="section-label">Audit trail</div>
-              <div className="audit-timeline">
-                {flag.audit.map((a, i) => (
-                  <div className="audit-item" key={i}>
-                    <div className="audit-rail">
-                      <div className="audit-dot" />
-                      {i < flag.audit!.length - 1 && <div className="audit-line" />}
+                {choice === "approved" && (
+                  <div className="panel-surface panel-surface-pad section-block">
+                    <div className="field">
+                      <label className="field-label">Send to</label>
+                      <div style={{ fontSize: 13 }}>{flag.team}</div>
                     </div>
-                    <div className="audit-content">
-                      <div className="audit-time">{a.time}</div>
-                      <div>{a.action}</div>
+                    <div className="field">
+                      <label className="field-label">Note</label>
+                      <textarea className="textarea" rows={2} readOnly value={approvedNote} />
                     </div>
+                    <button className="btn btn-primary" disabled={submitting} onClick={() => confirm("approved")}>
+                      Send to {flag.team}
+                    </button>
                   </div>
-                ))}
+                )}
+
+                {choice === "comprehensive-review" && (
+                  <div className="panel-surface panel-surface-pad section-block">
+                    <div className="field">
+                      <label className="field-label">Assign to</label>
+                      <select
+                        className="select"
+                        value={assignee}
+                        onChange={(e) => setAssignee(e.target.value as "Senior Counsel" | "Privacy team")}
+                      >
+                        <option>Senior Counsel</option>
+                        <option>Privacy team</option>
+                      </select>
+                    </div>
+                    <div className="field">
+                      <label className="field-label">Note</label>
+                      <textarea
+                        className="textarea"
+                        rows={2}
+                        value={reviewNote}
+                        onChange={(e) => setReviewNote(e.target.value)}
+                      />
+                    </div>
+                    <button
+                      className="btn btn-primary"
+                      disabled={submitting}
+                      onClick={() => confirm("comprehensive-review")}
+                    >
+                      Start comprehensive review
+                    </button>
+                  </div>
+                )}
+
+                {choice === "changes-required" && (
+                  <div className="panel-surface panel-surface-pad section-block">
+                    <div className="field-label" style={{ marginBottom: 10 }}>
+                      Required legal changes (suggested by the agent, edit as needed)
+                    </div>
+                    {requiredChanges.map((c) => (
+                      <div className="checklist-item" key={c.id}>
+                        <input
+                          type="checkbox"
+                          checked={c.checked}
+                          onChange={() =>
+                            setRequiredChanges((prev) =>
+                              prev.map((p) => (p.id === c.id ? { ...p, checked: !p.checked } : p))
+                            )
+                          }
+                        />
+                        <input
+                          className="input"
+                          value={c.text}
+                          onChange={(e) =>
+                            setRequiredChanges((prev) =>
+                              prev.map((p) => (p.id === c.id ? { ...p, text: e.target.value } : p))
+                            )
+                          }
+                        />
+                      </div>
+                    ))}
+                    <div className="flex-row gap-8" style={{ marginBottom: 14 }}>
+                      <input
+                        className="input"
+                        placeholder="Add another change"
+                        value={newChangeText}
+                        onChange={(e) => setNewChangeText(e.target.value)}
+                      />
+                      <button
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => {
+                          if (!newChangeText.trim()) return;
+                          setRequiredChanges((prev) => [
+                            ...prev,
+                            { id: `rc-${Date.now()}`, text: newChangeText.trim(), checked: true },
+                          ]);
+                          setNewChangeText("");
+                        }}
+                      >
+                        Add
+                      </button>
+                    </div>
+                    <div className="field">
+                      <label className="field-label">Note</label>
+                      <textarea
+                        className="textarea"
+                        rows={2}
+                        value={changesNote}
+                        onChange={(e) => setChangesNote(e.target.value)}
+                      />
+                    </div>
+                    <button
+                      className="btn btn-primary"
+                      disabled={submitting}
+                      onClick={() => confirm("changes-required")}
+                    >
+                      Send to {flag.team}
+                    </button>
+                  </div>
+                )}
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>

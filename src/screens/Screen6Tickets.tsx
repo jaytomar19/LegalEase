@@ -1,10 +1,16 @@
 import { useState } from "react";
 import { useStore } from "../state/store";
-import { CategoryTag, UrgencyTag } from "../components/Tags";
 import { EmptyState } from "../components/EmptyState";
-import type { Team } from "../types";
+import { IconTicket } from "../components/icons";
+import type { Flag, Team } from "../types";
 
 const TEAM_FILTERS: ("All" | Team)[] = ["All", "Engineering", "Product management", "Design"];
+
+function outcomeLabel(outcome?: string) {
+  if (outcome === "approved") return "Approved, go ahead";
+  if (outcome === "changes-required") return "Changes required";
+  return "";
+}
 
 export function Screen6Tickets() {
   const { state, dispatch } = useStore();
@@ -18,12 +24,18 @@ export function Screen6Tickets() {
   const underReview = flags.filter((f) => f.status === "comprehensive-review");
   const sentBack = flags.filter((f) => f.status === "resolved");
 
+  function openFlag(f: Flag) {
+    if (f.id === "flag-vendor-new") {
+      dispatch({ type: "NAVIGATE", screen: { name: "flag", flagId: f.id, returnTo: { name: "tickets" } } });
+    }
+  }
+
   return (
     <div>
       <div className="page-header">
         <div>
           <h1 className="page-title">Tickets</h1>
-          <div className="page-subtitle">All legal review items across teams</div>
+          <div className="page-subtitle">Legal queries and AI-detected changes requiring attention.</div>
         </div>
       </div>
 
@@ -35,127 +47,122 @@ export function Screen6Tickets() {
         ))}
       </div>
 
-      <div className="section-block">
-        <div className="section-label">Awaiting your review ({awaiting.length})</div>
-        {awaiting.length === 0 ? (
-          <EmptyState>Nothing awaiting review</EmptyState>
-        ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Ticket</th>
-                <th>Project</th>
-                <th>Category</th>
-                <th>Urgency</th>
-                <th>Owner</th>
-              </tr>
-            </thead>
-            <tbody>
-              {awaiting.map((f) => {
-                const reviewable = f.id === "flag-vendor-new";
-                return (
-                  <tr
-                    key={f.id}
-                    className={`row-${f.urgency} ${reviewable ? "clickable" : ""}`}
-                    onClick={() =>
-                      reviewable &&
-                      dispatch({
-                        type: "NAVIGATE",
-                        screen: { name: "flag", flagId: f.id, returnTo: { name: "tickets" } },
-                      })
-                    }
-                  >
-                    <td>
-                      <div className="cell-title">{f.title}</div>
-                      <div className="cell-tertiary">{f.documentTitle}</div>
-                    </td>
-                    <td className="cell-secondary">Project {f.projectId}</td>
-                    <td>
-                      <CategoryTag category={f.category} />
-                    </td>
-                    <td>
-                      <UrgencyTag urgency={f.urgency} />
-                    </td>
-                    <td className="cell-secondary">{f.team}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        )}
-      </div>
-
-      <div className="section-block">
-        <div className="section-label">Under comprehensive review ({underReview.length})</div>
-        {underReview.length === 0 ? (
-          <EmptyState>Nothing under review</EmptyState>
-        ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Ticket</th>
-                <th>Project</th>
-                <th>Issue</th>
-                <th>Status</th>
-                <th>Owner</th>
-                <th>Created</th>
-              </tr>
-            </thead>
-            <tbody>
-              {underReview.map((f) => (
-                <tr key={f.id} className="row-urgent">
-                  <td className="cell-title">{f.ticketId}</td>
-                  <td className="cell-secondary">Project {f.projectId}</td>
-                  <td className="cell-secondary">{f.title}</td>
-                  <td>
-                    <span className="badge badge-urgent">
-                      <span className="badge-dot" />
-                      Comprehensive review
+      <div className="stat-tile-row" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
+        <div>
+          <div className="ticket-col-header">
+            <span className="ticket-col-icon urgent">
+              <IconTicket size={14} />
+            </span>
+            <div>
+              <div className="ticket-col-title">Awaiting your review ({awaiting.length})</div>
+              <div className="ticket-col-sub">Ready for Legal consideration</div>
+            </div>
+          </div>
+          {awaiting.length === 0 ? (
+            <EmptyState>Nothing awaiting review</EmptyState>
+          ) : (
+            awaiting.map((f) => {
+              const reviewable = f.id === "flag-vendor-new";
+              return (
+                <div
+                  key={f.id}
+                  className="ticket-card"
+                  style={{ cursor: reviewable ? "pointer" : "default" }}
+                  onClick={() => openFlag(f)}
+                >
+                  <div className="ticket-card-top">
+                    <span className={`badge ${f.urgency === "urgent" ? "badge-urgent" : "badge-later"}`}>
+                      {f.urgency === "urgent" ? "High" : "Medium"}
                     </span>
-                  </td>
-                  <td className="cell-secondary">{f.assignee}</td>
-                  <td className="cell-tertiary">{f.date}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+                    {reviewable && <span className="text-tertiary" style={{ fontSize: 11 }}>Review ›</span>}
+                  </div>
+                  <div className="ticket-card-title">{f.title}</div>
+                  <div className="ticket-card-sub">
+                    Project {f.projectId} · {f.team}
+                  </div>
+                  <div className="ticket-card-tags">
+                    <span className="badge badge-neutral">{f.category}</span>
+                  </div>
+                  <hr className="ticket-card-divider" />
+                  <div className="ticket-card-footer">
+                    <span className="cell-tertiary">{f.documentTitle}</span>
+                    <span className="cell-tertiary">{f.date}</span>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
 
-      <div className="section-block">
-        <div className="section-label">Sent back to team ({sentBack.length})</div>
-        {sentBack.length === 0 ? (
-          <EmptyState>Nothing sent back yet</EmptyState>
-        ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Ticket</th>
-                <th>Project</th>
-                <th>Issue</th>
-                <th>Status</th>
-                <th>Owner</th>
-                <th>Updated</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sentBack.map((f) => (
-                <tr key={f.id} className="row-resolved">
-                  <td className="cell-title">{f.title}</td>
-                  <td className="cell-secondary">Project {f.projectId}</td>
-                  <td className="cell-secondary">
-                    <CategoryTag category={f.category} />
-                  </td>
-                  <td className="cell-secondary">
-                    Sent back · {f.outcome === "approved" ? "Approved, go ahead" : "Changes required"}
-                  </td>
-                  <td className="cell-secondary">{f.team}</td>
-                  <td className="cell-tertiary">{f.date}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+        <div>
+          <div className="ticket-col-header">
+            <span className="ticket-col-icon later">
+              <IconTicket size={14} />
+            </span>
+            <div>
+              <div className="ticket-col-title">Under comprehensive review ({underReview.length})</div>
+              <div className="ticket-col-sub">Counsel is reviewing</div>
+            </div>
+          </div>
+          {underReview.length === 0 ? (
+            <EmptyState>Nothing under review</EmptyState>
+          ) : (
+            underReview.map((f) => (
+              <div key={f.id} className="ticket-card">
+                <div className="ticket-card-top">
+                  <span className="badge badge-neutral">{f.ticketId}</span>
+                </div>
+                <div className="ticket-card-title">{f.title}</div>
+                <div className="ticket-card-sub">
+                  Project {f.projectId} · {f.team}
+                </div>
+                <div className="ticket-card-tags">
+                  <span className="badge badge-neutral">{f.category}</span>
+                </div>
+                <hr className="ticket-card-divider" />
+                <div className="ticket-card-footer">
+                  <span className="cell-tertiary">Assigned to {f.assignee}</span>
+                  <span className="cell-tertiary">{f.date}</span>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        <div>
+          <div className="ticket-col-header">
+            <span className="ticket-col-icon resolved">
+              <IconTicket size={14} />
+            </span>
+            <div>
+              <div className="ticket-col-title">Sent back to team ({sentBack.length})</div>
+              <div className="ticket-col-sub">Changes requested or cleared</div>
+            </div>
+          </div>
+          {sentBack.length === 0 ? (
+            <EmptyState>Nothing sent back yet</EmptyState>
+          ) : (
+            sentBack.map((f) => (
+              <div key={f.id} className="ticket-card">
+                <div className="ticket-card-top">
+                  <span className="badge badge-resolved">{outcomeLabel(f.outcome)}</span>
+                </div>
+                <div className="ticket-card-title">{f.title}</div>
+                <div className="ticket-card-sub">
+                  Project {f.projectId} · {f.team}
+                </div>
+                <div className="ticket-card-tags">
+                  <span className="badge badge-neutral">{f.category}</span>
+                </div>
+                <hr className="ticket-card-divider" />
+                <div className="ticket-card-footer">
+                  <span className="cell-tertiary">Sent back to {f.team}</span>
+                  <span className="cell-tertiary">{f.date}</span>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );
